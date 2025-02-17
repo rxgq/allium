@@ -2,6 +2,7 @@
 
 class Program {
   static void Main() {
-    Console.WriteLine("Hello, World!");
+    var app = new AlliumApp();
+    app.Run();
   }
 }
