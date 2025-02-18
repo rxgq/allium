@@ -19,12 +19,12 @@ sealed partial class AlliumCLI {
             Name = name
         };
 
-        Reader.Write("data/tasks.json", task);
+        Reader.Write(AlliumConstants.TasksPath, task);
         return Utils.Info($"task '{name}' added.");
     }
 
   private bool ListTasks() {
-    var tasks = Reader.Read<List<TaskModel>>("data/tasks.json") ?? [];
+    var tasks = Reader.Read<List<TaskModel>>(AlliumConstants.TasksPath) ?? [];
 
     if (tasks.Count == 0) {
         return Utils.Info("no tasks available.");
@@ -38,10 +38,8 @@ sealed partial class AlliumCLI {
     return true;
   }
 
-  private bool TaskHelp() {
-    const string taskHelp = "";
-
-    Utils.PrintLn("usage: task ");
-    return true;
-  }
+    private bool TaskHelp() {
+        Utils.PrintLn(AlliumConstants.TaskHelp);
+        return true;
+    }
 }

@@ -26,7 +26,5 @@ sealed partial class AlliumCLI {
     } else {
       UtilsHandler();
     }
-
-    Utils.PrintLn("");
   }
 }

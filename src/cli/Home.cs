@@ -1,0 +1,3 @@
+sealed partial class AlliumCLI {
+
+}

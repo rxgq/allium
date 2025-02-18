@@ -3,8 +3,9 @@ sealed class TerminalUtils {
     Console.Write(message);
   }
 
-    public void PrintLn(String message) {
-    Console.WriteLine(message);
+  public void PrintLn(String? message = null) {
+    if (message is not null) Console.WriteLine(message);
+    else Console.WriteLine();
   }
 
   public string Read(string? message = null) {

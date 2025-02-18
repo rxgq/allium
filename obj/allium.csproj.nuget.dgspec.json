@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\adunderdale\\Projects\\personal\\allium\\allium.csproj": {}
+    "C:\\Users\\rxgqq\\projects\\allium\\allium.csproj": {}
   },
   "projects": {
-    "C:\\Users\\adunderdale\\Projects\\personal\\allium\\allium.csproj": {
+    "C:\\Users\\rxgqq\\projects\\allium\\allium.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\adunderdale\\Projects\\personal\\allium\\allium.csproj",
+        "projectUniqueName": "C:\\Users\\rxgqq\\projects\\allium\\allium.csproj",
         "projectName": "allium",
-        "projectPath": "C:\\Users\\adunderdale\\Projects\\personal\\allium\\allium.csproj",
-        "packagesPath": "C:\\Users\\adunderdale\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\adunderdale\\Projects\\personal\\allium\\obj\\",
+        "projectPath": "C:\\Users\\rxgqq\\projects\\allium\\allium.csproj",
+        "packagesPath": "C:\\Users\\rxgqq\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\rxgqq\\projects\\allium\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\adunderdale\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\rxgqq\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -27,8 +27,7 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://pkgs.dev.azure.com/GHASolutions/_packaging/GHASolutions/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -66,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
