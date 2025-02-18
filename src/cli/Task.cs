@@ -30,6 +30,8 @@ sealed partial class AlliumCLI {
         return Utils.Info("no tasks available.");
     }
 
+    Utils.MenuList([.. tasks.Select(x => x.Name)], "tasks");
+
     Utils.Info("\nlisting tasks:");
     foreach (var task in tasks) {
         Utils.Info($"- {task.Name}");

@@ -34,4 +34,37 @@ sealed class TerminalUtils {
     PrintLn(message);
     return true;
   }
+
+  public T? MenuList<T>(List<T> options, string header) {
+    int activeIndex = 0;
+
+    for(;;) {
+      Console.Clear();
+      Console.ForegroundColor = ConsoleColor.White;
+
+      PrintLn($"{header}\n");
+
+      for (int i = 0; i < options.Count; i++) {
+        Console.WriteLine(i == activeIndex ? $"> {options[i]}" : options[i]);
+      }
+
+      ConsoleKeyInfo key = Console.ReadKey();
+      Console.Clear();
+
+      if (key.Key == ConsoleKey.UpArrow) {
+        if (activeIndex > 0) activeIndex--;
+        else activeIndex = options.Count - 1;
+      }
+      else if (key.Key == ConsoleKey.DownArrow) {
+        if (activeIndex < options.Count - 1) activeIndex++;
+        else activeIndex = 0;
+      }
+      else if (key.Key == ConsoleKey.Enter) {
+        return options[activeIndex];
+      }
+      else if (key.Key == ConsoleKey.Tab) {
+        return default;
+      }
+    }
+  }
 }
