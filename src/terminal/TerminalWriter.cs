@@ -16,7 +16,7 @@ sealed class TerminalUtils {
     return input ?? "";
   }
 
-  public void Error(string error) {
+  public bool Error(string error) {
     for (int i = 0; i < 7; i++)
     {
         Console.ForegroundColor = i % 2 == 0 ? ConsoleColor.Red : ConsoleColor.Yellow;
@@ -25,9 +25,12 @@ sealed class TerminalUtils {
     }
     Console.WriteLine();
     Console.ResetColor();
+
+    return false;
   }
 
-  public void Info(string message) {
+  public bool Info(string message) {
     PrintLn(message);
+    return true;
   }
 }
