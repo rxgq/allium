@@ -13,6 +13,7 @@ sealed class JsonController {
         return typeof(T) switch {
             Type t when t == typeof(TaskModel) || t == typeof(List<TaskModel>) => AlliumConstants.TasksPath,
             Type t when t == typeof(ProjectModel) || t == typeof(List<ProjectModel>) => AlliumConstants.ProjectsPath,
+            Type t when t == typeof(MacroModel) || t == typeof(List<MacroModel>) => AlliumConstants.MacroPath,
             _ => throw new InvalidOperationException($"Unsupported type: {typeof(T).Name}")
         };
     }

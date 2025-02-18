@@ -14,17 +14,22 @@ sealed partial class AlliumCLI {
     private bool NewTask() {
         if (Args.Count < 2) return ExpectArg("task name");
 
+        var tasks = JsonController.Read<List<TaskModel>>();
+        var nextId = tasks.Count != 0 ? tasks.Max(x => x.Id) + 1 : 0;
+        
         var name = string.Join(' ', Args.Skip(1).ToList());
+
         var task = new TaskModel() {
-            Name = name
+            Name = name,
+            Id = nextId
         };
         
-        Reader.Create(task);
+        JsonController.Create(task);
         return Utils.Info($"task '{name}' added.");
     }
 
   private bool ListTasks() {
-    var tasks = Reader.Read<List<TaskModel>>() ?? [];
+    var tasks = JsonController.Read<List<TaskModel>>() ?? [];
 
     if (tasks.Count == 0) {
         return Utils.Info("no tasks available.");

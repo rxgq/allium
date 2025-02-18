@@ -45,8 +45,4 @@ sealed class AlliumApp {
     var projects = JsonController.Read<List<ProjectModel>>();
     Utils.Print($"projects {projects.Count}");
   }
-
-  private void Login() {
-    
-  }
 }

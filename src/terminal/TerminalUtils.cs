@@ -1,5 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
-
 sealed class TerminalUtils {
   public void Print(String message) {
     Console.Write(message);
