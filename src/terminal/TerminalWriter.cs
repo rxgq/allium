@@ -23,7 +23,7 @@ sealed class TerminalUtils {
         Console.Write($"\r? error: {error}");
         Thread.Sleep(35);
     }
-    Console.WriteLine();
+    Console.WriteLine("");
     Console.ResetColor();
 
     return false;

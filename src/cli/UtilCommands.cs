@@ -1,18 +1,16 @@
 sealed partial class AlliumCLI {
-    private bool UtilsHandler(List<string> args) {
-        var command = args[0];
-
-        return command switch {
-            "echo" => Echo(args),
-            "cls"  => Clear(args),
-            _ => Utils.Error($"unknown command '{command}'")
+    private bool UtilsHandler() {
+        return Command switch {
+            "echo" => Echo(Args),
+            "cls"  => Clear(Args),
+            _ => Utils.Error($"unknown command '{Command}'")
         };
     }
 
     private bool Echo(List<string> args) {
-        if (args.Count < 2) return Expect("one argument");
+        if (args.Count < 1) return Expect("one argument");
 
-        var message = string.Join(' ', args.Skip(1).ToList());
+        var message = string.Join(' ', args.ToList());
         return Utils.Info(message);
     }
 

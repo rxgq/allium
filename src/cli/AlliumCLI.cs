@@ -1,9 +1,10 @@
 sealed partial class AlliumCLI {
   private readonly TerminalUtils Utils = new();
   private readonly JsonReader Reader = new();
-  private readonly Dictionary<string, Func<List<string>, bool>> Commands;
+  private readonly Dictionary<string, Func<bool>> Commands;
 
-  private string? currentCommand;
+  private string? Command;
+  private List<string> Args = [];
 
   public AlliumCLI() {
     Commands = new() {
@@ -15,14 +16,17 @@ sealed partial class AlliumCLI {
   public void Execute(string command) {
     if (command is "") return;
 
-    var parts = command.Split(" ");
-    if (Commands.TryGetValue(parts[0], out var action)) {
-      currentCommand = parts[0];
-      action([.. parts]);
-      return;
+    var parts = command.Split(" ").ToList();
+
+    Command = parts.First();
+    Args = [.. parts.Skip(1)];
+
+    if (Commands.TryGetValue(Command, out var action)) {
+      action();
+    } else {
+      UtilsHandler();
     }
 
-    UtilsHandler([.. parts]);
     Utils.PrintLn("");
   }
 }

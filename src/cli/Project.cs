@@ -1,16 +1,20 @@
 sealed partial class AlliumCLI {
-
-
-      private bool ProjectHandler(List<string> args) {
-        if (args.Count < 2) {
+      private bool ProjectHandler() {
+        if (Args.Count < 1) {
             return Expect("project action");
         }
 
-        var action = args[1];
-        return args[1] switch {
-            "new"  => AddNewTask(args),
-            "list" => ListTasks(),
-            _      => Utils.Error($"unknown task action '{action}'. Use 'new' or 'list'."),
+        var action = Args[0];
+        return action switch {
+            // "new"  => AddNewTask(args),
+            // "list" => ListTasks(),
+            "-h" or "--help" => ProjectHelp(),
+            _      => Utils.Error($"unknown task action '{action}'."),
         };
+    }
+
+    private bool ProjectHelp() {
+        Utils.PrintLn("usage: project [-h | --help]");
+        return true;
     }
 }

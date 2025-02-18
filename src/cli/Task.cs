@@ -1,19 +1,20 @@
 sealed partial class AlliumCLI {
-    private bool TaskHandler(List<string> args) {
-        if (args.Count < 2) return Expect("task action");
+    private bool TaskHandler() {
+        if (Args.Count < 1) return TaskHelp();
 
-        var action = args[1];
+        var action = Args[0];
         return action switch {
-            "new"  => AddNewTask(args),
+            "new"  => NewTask(),
             "list" => ListTasks(),
+            "-h" or "--help" => TaskHelp(),
             _      => Utils.Error($"unknown task action '{action}'. Use 'new' or 'list'."),
         };
     }
 
-    private bool AddNewTask(List<string> args) {
-        if (args.Count < 3) return Expect("task name");
+    private bool NewTask() {
+        if (Args.Count < 2) return ExpectArg("task name");
 
-        var name = string.Join(' ', args.Skip(2).ToList());
+        var name = string.Join(' ', Args.Skip(1).ToList());
         var task = new TaskModel() {
             Name = name
         };
@@ -34,6 +35,13 @@ sealed partial class AlliumCLI {
         Utils.Info($"- {task.Name}");
     }
 
+    return true;
+  }
+
+  private bool TaskHelp() {
+    const string taskHelp = "";
+
+    Utils.PrintLn("usage: task ");
     return true;
   }
 }

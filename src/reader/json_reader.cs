@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 sealed class JsonReader {
-  public T Read<T>(string path) 
+  public T Read<T>(string path)
     where T : class
   {
     var content = File.ReadAllText(path);
@@ -10,8 +10,8 @@ sealed class JsonReader {
     return data;
   }
 
-  public void Write<T>(string path, T data) 
-    where T : class 
+  public void Write<T>(string path, T data)
+    where T : class
   {
     var content = Read<List<T>>(path);
     content.Add(data);
