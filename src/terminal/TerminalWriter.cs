@@ -26,4 +26,8 @@ sealed class TerminalUtils {
     Console.WriteLine();
     Console.ResetColor();
   }
+
+  public void Info(string message) {
+    PrintLn(message);
+  }
 }
