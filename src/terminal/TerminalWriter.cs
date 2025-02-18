@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+
 sealed class TerminalUtils {
   public void Print(String message) {
     Console.Write(message);
@@ -35,29 +37,25 @@ sealed class TerminalUtils {
     return true;
   }
 
-  public T? MenuList<T>(List<T> options, string header) {
+  public T? MenuList<T>(List<T> options, Func<T, string> selector, string header) where T : class {
     int activeIndex = 0;
 
     for(;;) {
       Console.Clear();
-      Console.ForegroundColor = ConsoleColor.White;
-
       PrintLn($"{header}\n");
 
       for (int i = 0; i < options.Count; i++) {
-        Console.WriteLine(i == activeIndex ? $"> {options[i]}" : options[i]);
+        var option = selector(options[i]);
+        Console.WriteLine(i == activeIndex ? $"> {option}" : option);
       }
 
-      ConsoleKeyInfo key = Console.ReadKey();
-      Console.Clear();
+      var key = Console.ReadKey();
 
       if (key.Key == ConsoleKey.UpArrow) {
-        if (activeIndex > 0) activeIndex--;
-        else activeIndex = options.Count - 1;
+        activeIndex = activeIndex > 0 ? --activeIndex : options.Count - 1;
       }
       else if (key.Key == ConsoleKey.DownArrow) {
-        if (activeIndex < options.Count - 1) activeIndex++;
-        else activeIndex = 0;
+        activeIndex = activeIndex < options.Count - 1 ? ++activeIndex : 0;
       }
       else if (key.Key == ConsoleKey.Enter) {
         return options[activeIndex];

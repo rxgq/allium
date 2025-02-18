@@ -1,6 +1,6 @@
 sealed partial class AlliumCLI {
   private readonly TerminalUtils Utils = new();
-  private readonly JsonReader Reader = new();
+  private readonly JsonController Reader = new();
   private readonly Dictionary<string, Func<bool>> Commands;
 
   private string? Command;

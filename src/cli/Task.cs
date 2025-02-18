@@ -18,25 +18,19 @@ sealed partial class AlliumCLI {
         var task = new TaskModel() {
             Name = name
         };
-
-        Reader.Write(AlliumConstants.TasksPath, task);
+        
+        Reader.Create(task);
         return Utils.Info($"task '{name}' added.");
     }
 
   private bool ListTasks() {
-    var tasks = Reader.Read<List<TaskModel>>(AlliumConstants.TasksPath) ?? [];
+    var tasks = Reader.Read<List<TaskModel>>() ?? [];
 
     if (tasks.Count == 0) {
         return Utils.Info("no tasks available.");
     }
-
-    Utils.MenuList([.. tasks.Select(x => x.Name)], "tasks");
-
-    Utils.Info("\nlisting tasks:");
-    foreach (var task in tasks) {
-        Utils.Info($"- {task.Name}");
-    }
-
+    
+    var task = Utils.MenuList(tasks, (x) => x.Name, $"tasks ({tasks.Count})");
     return true;
   }
 

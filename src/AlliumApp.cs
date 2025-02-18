@@ -1,7 +1,7 @@
 sealed class AlliumApp {
   private readonly AlliumCLI Cli = new();
   private readonly TerminalUtils Utils = new();
-  private readonly JsonReader Reader = new();
+  private readonly JsonController JsonController = new();
 
   private AlliumUser user;
   private string? Input;
@@ -37,12 +37,12 @@ sealed class AlliumApp {
   private void WriteHome() {
     Utils.Print("  ");
 
-    var tasks = Reader.Read<List<TaskModel>>(AlliumConstants.TasksPath);
+    var tasks = JsonController.Read<List<TaskModel>>();
     Utils.Print($"tasks {tasks.Count}");
 
     Utils.Print(" | ");
 
-    var projects = Reader.Read<List<ProjectModel>>(AlliumConstants.ProjectsPath);
+    var projects = JsonController.Read<List<ProjectModel>>();
     Utils.Print($"projects {projects.Count}");
   }
 

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-sealed class JsonReader {
+sealed class JsonReader : IReader {
   public T Read<T>(string path)
     where T : class
   {
