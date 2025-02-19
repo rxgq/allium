@@ -22,7 +22,7 @@ sealed partial class AlliumCLI {
         Console.Clear();
         Utils.PrintLn($"> {name} \n");
 
-        string description = Utils.Read("description: ");
+        var description = Utils.Read("description: ");
 
         var task = new TaskModel() {
             Name = name,
@@ -50,10 +50,16 @@ sealed partial class AlliumCLI {
 
         else if (option is "delete") {
             JsonController.Delete(task);
+            Utils.Info($"task '{task.Name}' has been deleted");
+            Console.ReadKey();
             break;
         }
         else if (option is "finish") {
             task.IsComplete = true;
+            JsonController.Update(task);
+        }
+        else if (option is "alter") {
+            task.Description = Utils.Read("description: ");;
             JsonController.Update(task);
         }
     }

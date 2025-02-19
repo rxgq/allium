@@ -17,6 +17,15 @@ sealed class TerminalUtils {
     return input ?? "";
   }
 
+  public bool Choice(string message) {
+    for (;;) {
+      var input = Read($"{message} (y/n): ").ToLower();
+
+      if (input is "y") return true;
+      else if (input is "n") return false;
+    }
+  }
+
   public bool Error(string error) {
     for (int i = 0; i < 7; i++)
     {

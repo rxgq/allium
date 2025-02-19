@@ -1,5 +1,5 @@
 static class AlliumConstants {
-  public static string TaskHelp = @"
+  public static readonly string TaskHelp = @"
 usage: task [command] [options]
 
 commands:
@@ -8,7 +8,7 @@ commands:
   -h, --help    show this help message.
 ";
 
-  public static string ProjectHelp = @"
+  public static readonly string ProjectHelp = @"
 usage: project [command] [options]
 
 commands:
@@ -17,8 +17,13 @@ commands:
   -h, --help  show this help message.
 ";
 
-  public static string TasksPath = "data/tasks.json";
-  public static string ProjectsPath = "data/projects.json";
-  public static string MacroPath = "data/macros.json";
+  public static readonly string TasksPath = "data/tasks.json";
+  public static readonly string ProjectsPath = "data/projects.json";
+  public static readonly string MacroPath = "data/macros.json";
   public static string UserProjectsPath = "C:\\Users\\rxgqq\\projects";
+
+  public static readonly string AppDataPath = 
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "allium");
+
+  public static readonly string UserPath = Path.Combine(AppDataPath, "user.json");
 }
