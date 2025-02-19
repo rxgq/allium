@@ -11,7 +11,6 @@ sealed class AlliumApp {
   public void Run() {
     Console.Clear();
 
-    // Reset();
     if (!Directory.Exists(AlliumConstants.AppDataPath)) {
       Setup();
     }      
@@ -24,7 +23,7 @@ sealed class AlliumApp {
     Console.Clear();
     Utils.Info("\n  welcome, sir.\n");
 
-    for (;;) {
+    while (!Cli.ShouldExit) {
       if (Input is not "") {
         WriteHome();
       }

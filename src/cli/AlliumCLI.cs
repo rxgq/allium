@@ -5,12 +5,14 @@ sealed partial class AlliumCLI {
 
   private string? Command;
   private List<string> Args = [];
+  public bool ShouldExit { get; private set; }
 
   public AlliumCLI() {
     Commands = new() {
       ["task"] = TaskHandler,
       ["project"] = ProjectHandler,
       ["open"] = OpenHandler,
+      ["reset"] = ResetHandler
     };
   }
 

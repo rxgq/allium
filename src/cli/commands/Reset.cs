@@ -10,7 +10,9 @@ sealed partial class AlliumCLI {
   } 
 
   private bool ResetHelp() {
-
+    Utils.Info("\nthe reset command requires the '--confirm' flag");
+    Utils.Info("warning: this will delete *everything*");
+    Console.ReadKey();
     return true;
   }
 
@@ -22,6 +24,12 @@ sealed partial class AlliumCLI {
     if (Directory.Exists(AlliumConstants.AppDataPath)) {
       Directory.Delete(AlliumConstants.AppDataPath);
     }
+
+    Utils.Info("data has been deleted");
+    Utils.Info("the program will now exit");
+    Console.ReadKey();
+
+    ShouldExit = true;
 
     return true;
   }
