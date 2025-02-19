@@ -26,7 +26,7 @@ sealed class AlliumApp {
       Cli.Execute(Input);
 
       if (Input is not "" and not "cls") {
-        Console.ReadKey();
+        // Console.ReadKey();
         Console.Clear();
       }
     }

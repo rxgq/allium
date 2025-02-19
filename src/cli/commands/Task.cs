@@ -19,11 +19,17 @@ sealed partial class AlliumCLI {
         
         var name = string.Join(' ', Args.Skip(1).ToList());
 
+        Console.Clear();
+        Utils.PrintLn($"> {name} \n");
+
+        string description = Utils.Read("description: ");
+
         var task = new TaskModel() {
             Name = name,
-            Id = nextId
+            Id = nextId,
+            Description = description
         };
-        
+
         JsonController.Create(task);
         return Utils.Info($"task '{name}' added.");
     }
@@ -35,7 +41,23 @@ sealed partial class AlliumCLI {
         return Utils.Info("no tasks available.");
     }
     
-    var task = Utils.MenuList(tasks, (x) => x.Name, $"tasks ({tasks.Count})");
+    for (;;) {
+        var task = Utils.MenuList(tasks, $"tasks ({tasks.Count})", (x) => x.Name + x.IsComplete);
+        if (task is null) return false;
+
+        var option = Utils.MenuList(["finish", "delete", "alter", "return"], $"{task.Name}\n {task.Description}");
+        if (option is "return") break;
+
+        else if (option is "delete") {
+            JsonController.Delete(task);
+            break;
+        }
+        else if (option is "finish") {
+            task.IsComplete = true;
+            JsonController.Update(task);
+        }
+    }
+
     return true;
   }
 

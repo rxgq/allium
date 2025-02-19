@@ -34,7 +34,7 @@ sealed partial class AlliumCLI {
             return Utils.Info("no projects available.");
         }
         
-        var task = Utils.MenuList(projects, (x) => x.Name, $"projects ({projects.Count})");
+        var task = Utils.MenuList(projects, $"projects ({projects.Count})", (x) => x.Name);
         return true;
     }
 

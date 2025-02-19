@@ -31,11 +31,11 @@ sealed class TerminalUtils {
   }
 
   public bool Info(string message) {
-    PrintLn(message);
+    PrintLn($"  {message}");
     return true;
   }
 
-  public T? MenuList<T>(List<T> options, Func<T, string> selector, string header) where T : class {
+  public T? MenuList<T>(List<T> options, string header, Func<T, string>? selector = null) where T : class {
     int activeIndex = 0;
 
     for(;;) {
@@ -43,7 +43,7 @@ sealed class TerminalUtils {
       PrintLn($"{header}\n");
 
       for (int i = 0; i < options.Count; i++) {
-        var option = selector(options[i]);
+        var option = selector != null ? selector(options[i]) : options[i].ToString();
         Console.WriteLine(i == activeIndex ? $"> {option}" : option);
       }
 

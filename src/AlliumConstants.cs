@@ -20,5 +20,5 @@ commands:
   public static string TasksPath = "data/tasks.json";
   public static string ProjectsPath = "data/projects.json";
   public static string MacroPath = "data/macros.json";
-
+  public static string UserProjectsPath = "C:\\Users\\rxgqq\\projects";
 }

@@ -1,3 +1,5 @@
+using System.Data;
+
 sealed class JsonController {
     private readonly JsonReader Reader = new();
 
@@ -7,6 +9,14 @@ sealed class JsonController {
 
     public void Create<T>(T data) where T : class {
         Reader.Write(MapPath<T>(), data);
+    }
+
+    public void Update<T>(T data) where T : class {
+        Reader.Update(MapPath<T>(), data);
+    }
+
+    public void Delete<T>(T data) where T : class {
+        Reader.Delete(MapPath<T>(), data);
     }
 
     private string MapPath<T>() where T : class {

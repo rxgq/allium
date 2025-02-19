@@ -10,6 +10,7 @@ sealed partial class AlliumCLI {
     Commands = new() {
       ["task"] = TaskHandler,
       ["project"] = ProjectHandler,
+      ["open"] = OpenHandler,
     };
   }
 
@@ -18,7 +19,7 @@ sealed partial class AlliumCLI {
 
     if (command.StartsWith('.')) {
       var macro = MacroHandler(command);
-      
+
       if (macro is not null) {
         command = macro;
       }

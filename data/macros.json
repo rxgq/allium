@@ -1,10 +1,10 @@
 [
   {
-    "Macro": ".tl",
+    "Macro": "tl",
     "Command": "task list"
   },
   {
-    "Macro": ".pl",
+    "Macro": "pl",
     "Command": "project list"
   }
 ]
