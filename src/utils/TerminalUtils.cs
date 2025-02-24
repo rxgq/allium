@@ -3,7 +3,7 @@ sealed class TerminalUtils {
     Console.Write(message);
   }
 
-  public void PrintLn(String? message = null) {
+  public void Println(String? message = null) {
     if (message is not null) Console.WriteLine(message);
     else Console.WriteLine();
   }
@@ -40,7 +40,7 @@ sealed class TerminalUtils {
   }
 
   public bool Info(string message) {
-    PrintLn($"  {message}");
+    Println($"  {message}");
     return true;
   }
 
@@ -49,7 +49,7 @@ sealed class TerminalUtils {
 
     for(;;) {
       Console.Clear();
-      PrintLn($"{header}\n");
+      Println($"{header}\n");
 
       for (int i = 0; i < options.Count; i++) {
         var option = selector != null ? selector(options[i]) : options[i].ToString();
