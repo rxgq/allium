@@ -1,20 +1,30 @@
 using System.Text.Json;
 
-sealed class JsonReader {
-    public static List<T> Read<T>() {
+sealed class JsonDb {
+    public List<T> Get<T>() {
         var path = MapPath<T>();
 
         var json = File.ReadAllText(path);
         return JsonSerializer.Deserialize<List<T>>(json);
     }
 
-    public static void Write<T>(T data) {
+    public void Write<T>(T data) {
         var path = MapPath<T>();
 
-        var existingData = Read<T>();
+        var existingData = Get<T>();
         existingData.Add(data);
 
         var json = JsonSerializer.Serialize(existingData);
+        File.WriteAllText(path, json);
+    }
+
+    public void Write<T>(List<T> data, bool overwrite = false) {
+        var path = MapPath<T>();
+
+        var existingData = Get<T>();
+        existingData.AddRange(data);
+
+        var json = JsonSerializer.Serialize(overwrite ? data : existingData);
         File.WriteAllText(path, json);
     }
 

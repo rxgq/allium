@@ -5,6 +5,7 @@ sealed class AlliumApp {
     public void Run(string[] args) {
         if (args.Length is 0) {
             Utils.Println(Constants.AlliumInfo);
+            return;
         }
 
         Cli.Execute(args);

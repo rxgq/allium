@@ -1,4 +1,4 @@
-enum Measurement {
+enum WaterUnit {
     millilitre,
     gallon,
     litre

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("allium")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db4f239b9c613de372cd4895c90f2c7f208d0773")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+91246f3012dd6ad66165c37b565c5d4644fbbbf3")]
 [assembly: System.Reflection.AssemblyProductAttribute("allium")]
 [assembly: System.Reflection.AssemblyTitleAttribute("allium")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
