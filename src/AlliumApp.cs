@@ -1,10 +1,11 @@
 sealed class AlliumApp {
-  private readonly AlliumCli Cli = new();
+  private AlliumCli? Cli;
   private readonly TerminalUtils Utils = new();
   private readonly JsonDb Db = new();
 
   public bool Run(string[] args) {
-    if (Db.Get<WaterSettings>() is null) {
+    var settings = Db.Get<WaterSettings>();
+    if (settings is null) {
       return Setup();
     }
 
@@ -12,6 +13,9 @@ sealed class AlliumApp {
         Utils.Println(Constants.AlliumInfo);
         return true;
     }
+
+    settings = Db.Get<WaterSettings>();
+    Cli = new(settings);
 
     return Cli.Execute(args);
   }
@@ -35,7 +39,7 @@ sealed class AlliumApp {
     var name = Utils.Read("your name: ");
 
     var settings = new WaterSettings() {
-        DailyIntake = intake,
+        DailyGoal = intake,
         Unit = UnitMapper.Map(intakeUnit!),
         Username = name
     };

@@ -2,8 +2,9 @@ sealed class AlliumCli {
     private readonly Dictionary<string, Func<List<string>, bool>> Commands;
     private readonly TerminalUtils Utils = new();
     private readonly JsonDb Db = new();
+    private readonly WaterSettings Settings;
 
-    public AlliumCli() {
+    public AlliumCli(WaterSettings settings) {
         Commands = new() {
             ["--help"] = ShowHelp,
             ["-h"] = ShowHelp,
@@ -12,7 +13,10 @@ sealed class AlliumCli {
             ["--log"] = LogWater,
             ["--list"] = ListEntries,
             ["--undo"] = UndoEntry,
+            ["--setting"] = GetSetting
         };
+
+        Settings = settings;
     }
 
     public bool Execute(string[] args) {
@@ -20,6 +24,29 @@ sealed class AlliumCli {
 
         if (Commands.TryGetValue(command, out var value)) {
             return value(args.ToList());
+        }
+
+        return true;
+    }
+
+    private bool GetSetting(List<string> args) {
+        var settingMap = new Dictionary<string, object>() {
+            ["goal"] = Settings.DailyGoal,
+            ["user"] = Settings.Username,
+            ["unit"] = Settings.Unit
+        };
+
+
+        if (args.Count == 1) {
+            Utils.Error("expected specified setting after '--setting'.");
+            return false;
+        }
+
+        var setting = args[1];
+        if (settingMap.TryGetValue(setting, out var settingValue)) {
+            Utils.Println(settingValue.ToString());
+        } else {
+            return Utils.Error($"unknown setting '{setting}'");
         }
 
         return true;
