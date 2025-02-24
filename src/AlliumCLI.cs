@@ -53,7 +53,11 @@ sealed class AlliumCli {
             Unit = WaterUnit.milliliter
         };
 
-        Db.Write(entry);
+        var entries = Db.GetList<WaterEntry>()
+            .Append(entry).ToList();
+
+        Db.Write(entries, overwrite: true);
+
         return Utils.Info("water entry logged.");
     }
 
@@ -81,7 +85,7 @@ sealed class AlliumCli {
         }
 
         entries.RemoveAt(entries.Count - 1);
-        Db.Write<WaterEntry>(entries, overwrite: true);
+        Db.Write(entries, overwrite: true);
 
         return Utils.Info("last water entry removed.");
     }
