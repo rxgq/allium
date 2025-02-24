@@ -4,8 +4,17 @@ static class UnitMapper {
         return unit switch {
             WaterUnit.gallon => "gal",
             WaterUnit.litre => "L",
-            WaterUnit.millilitre => "ml",
+            WaterUnit.milliliter => "ml",
             _ => ""
+        }; 
+    }
+
+    public static WaterUnit Map(string str) {
+        return str switch {
+            "gal" => WaterUnit.gallon,
+            "L" => WaterUnit.litre,
+            "ml" => WaterUnit.milliliter,
+            _ => WaterUnit.Unknown
         }; 
     }
 }

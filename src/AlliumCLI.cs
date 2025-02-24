@@ -1,7 +1,7 @@
 sealed class AlliumCli {
     private readonly Dictionary<string, Func<List<string>, bool>> Commands;
     private readonly TerminalUtils Utils = new();
-    private readonly JsonDb Reader = new();
+    private readonly JsonDb Db = new();
 
     public AlliumCli() {
         Commands = new() {
@@ -11,7 +11,7 @@ sealed class AlliumCli {
             ["-v"] = ShowVersion,
             ["--log"] = LogWater,
             ["--list"] = ListEntries,
-            ["--undo"] = UndoEntry
+            ["--undo"] = UndoEntry,
         };
     }
 
@@ -50,15 +50,15 @@ sealed class AlliumCli {
         var entry = new WaterEntry() {
             WaterAmount = double.Parse(amount),
             DateEntered = DateTime.Now,
-            Unit = WaterUnit.millilitre
+            Unit = WaterUnit.milliliter
         };
 
-        Reader.Write(entry);
+        Db.Write(entry);
         return Utils.Info("water entry logged.");
     }
 
     private bool ListEntries(List<string> args) {
-        var entries = Reader.Get<WaterEntry>();
+        var entries = Db.GetList<WaterEntry>();
         
         if (entries.Count == 0) {
             Utils.Error("no water entries found.");
@@ -74,14 +74,14 @@ sealed class AlliumCli {
     }
 
     private bool UndoEntry(List<string> args) {
-        var entries = Reader.Get<WaterEntry>();
+        var entries = Db.GetList<WaterEntry>();
         if (entries.Count == 0) {
             Utils.Error("no water entries found.");
             return false;
         }
 
         entries.RemoveAt(entries.Count - 1);
-        Reader.Write<WaterEntry>(entries, overwrite: true);
+        Db.Write<WaterEntry>(entries, overwrite: true);
 
         return Utils.Info("last water entry removed.");
     }

@@ -1,5 +1,6 @@
 enum WaterUnit {
-    millilitre,
+    milliliter,
     gallon,
-    litre
+    litre,
+    Unknown
 }

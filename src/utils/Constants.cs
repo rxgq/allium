@@ -1,5 +1,6 @@
 static class Constants {
     public static readonly string WaterPath = $"data/water.json"; 
+    public static readonly string SettingsPath = $"data/settings.json"; 
 
     public static readonly string AlliumInfo = 
 @"
