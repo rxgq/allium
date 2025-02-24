@@ -1,6 +1,10 @@
 using System.Text.Json;
 
 sealed class JsonDb {
+    private static readonly JsonSerializerOptions JsonOptions = new() {
+        WriteIndented = true
+    };
+
     public List<T> GetList<T>() {
         try {
             var path = MapPath<T>();
@@ -28,7 +32,7 @@ sealed class JsonDb {
     public void Write<T>(T data) {
         var path = MapPath<T>();
 
-        var json = JsonSerializer.Serialize(data);
+        var json = JsonSerializer.Serialize(data, JsonOptions);
         File.WriteAllText(path, json);
     }
 
@@ -38,7 +42,7 @@ sealed class JsonDb {
         var existingData = GetList<T>();
         existingData.AddRange(data);
 
-        var json = JsonSerializer.Serialize(overwrite ? data : existingData);
+        var json = JsonSerializer.Serialize(overwrite ? data : existingData, JsonOptions);
         File.WriteAllText(path, json);
     }
 

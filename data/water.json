@@ -1,1 +1,7 @@
-[{"Unit":0,"WaterAmount":200,"DateEntered":"2025-02-24T19:13:51.6850181+00:00"},{"Unit":0,"WaterAmount":201,"DateEntered":"2025-02-24T19:14:01.3292838+00:00"},{"Unit":0,"WaterAmount":203,"DateEntered":"2025-02-24T19:14:15.6409824+00:00"},{"Unit":0,"WaterAmount":202,"DateEntered":"2025-02-24T19:37:27.8026124+00:00"}]
+[
+  {
+    "Unit": 0,
+    "WaterAmount": 200,
+    "DateEntered": "2025-02-24T20:37:28.9802057+00:00"
+  }
+]

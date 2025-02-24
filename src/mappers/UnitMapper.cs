@@ -10,9 +10,9 @@ static class UnitMapper {
     }
 
     public static WaterUnit Map(string str) {
-        return str switch {
+        return str.ToLower() switch {
             "gal" => WaterUnit.gallon,
-            "L" => WaterUnit.litre,
+            "l" => WaterUnit.litre,
             "ml" => WaterUnit.milliliter,
             _ => WaterUnit.Unknown
         }; 

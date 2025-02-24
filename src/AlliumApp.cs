@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 sealed class AlliumApp {
   private AlliumCli? Cli;
   private readonly TerminalUtils Utils = new();
@@ -21,22 +23,41 @@ sealed class AlliumApp {
   }
 
   private bool Setup() {
-    Utils.Println("allium setup required..");
-    
-    var intakeUnit = Utils.MenuList(["ml", "L", "gal"], "select your preferred unit of measurement? (use arrow keys)");
-    
-    double intake;
-    for (;;) {
-        var intakeStr = Utils.Read("\nwhat is your daily intake goal?: ");
+    Utils.Println("\nallium setup required..");
 
-        if (!double.TryParse(intakeStr, out intake)) {
-            return Utils.Error("invalid numeric input.");
-        }
-
-        break;
+    var shouldSetup = Utils.Choice("continue?");
+    if (!shouldSetup) {
+      return false;
     }
 
-    var name = Utils.Read("your name: ");
+    Utils.Println();
+
+    string intakeUnit;
+    for (;;) {
+      intakeUnit = Utils.Read("enter your preferred measurement unit (ml, L, gal): ");
+      if (intakeUnit.ToLower() is "ml" or "l" or "gal") {
+        break;
+      }
+    }
+
+    double intake;
+    for (;;) {
+      var unitStr = UnitMapper.Map(UnitMapper.Map(intakeUnit));
+      var intakeStr = Utils.Read($"what is your daily intake goal in ({unitStr})?: ");
+
+      if (double.TryParse(intakeStr, out intake)) {
+        break;
+      }
+    }
+
+    string name;
+    for (;;) {
+      name = Utils.Read("your name: ");
+
+      if (name is not null && name?.Length >= 1) {
+        break;
+      }
+    }
 
     var settings = new WaterSettings() {
         DailyGoal = intake,
@@ -44,13 +65,25 @@ sealed class AlliumApp {
         Username = name
     };
 
-    Utils.Println("saving water settings.");
+    Utils.Println("\ncreating allium directory");
+    Directory.CreateDirectory(Constants.AppDataPath);
+    Thread.Sleep(50);
+
+    Utils.Println("creating water.json");
+    using (File.Create(Constants.WaterPath)) { }
+    File.WriteAllText(Constants.WaterPath, "[]");
+    Thread.Sleep(30);
+    
+    Utils.Println("creating settings.json");
+    using (File.Create(Constants.SettingsPath)) { }
+    Thread.Sleep(30);
+
+    Utils.Println("saving water settings");
     Thread.Sleep(200);
-
     Db.Write(settings);
-    Utils.Println("saved settings.");
-
-    Utils.Println("\ntry using 'allium --log <amount>'");
-    return Utils.Info("finished setup.");
+    Utils.Println("saved settings");
+    
+    Utils.Println("finished setup.");
+    return Utils.Info("\n  try using 'allium --log <amount>'");
   }
 }

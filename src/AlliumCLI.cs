@@ -13,7 +13,8 @@ sealed class AlliumCli {
             ["--log"] = LogWater,
             ["--list"] = ListEntries,
             ["--undo"] = UndoEntry,
-            ["--setting"] = GetSetting
+            ["--setting"] = GetSetting,
+            ["--reset"] = Reset,
         };
 
         Settings = settings;
@@ -24,9 +25,19 @@ sealed class AlliumCli {
 
         if (Commands.TryGetValue(command, out var value)) {
             return value(args.ToList());
+        } 
+
+        return Utils.Error($"unknown command '{command}'.");
+    }
+
+    private bool Reset(List<string> args) {
+        if (args.Count == 1 || args[1] != "--confirm") {
+            Utils.Error("--reset requires the '--confirm' flag.");
+            return false;
         }
 
-        return true;
+        Directory.Delete(Constants.AppDataPath, recursive: true);
+        return Utils.Info("allium has been reset.");
     }
 
     private bool GetSetting(List<string> args) {
@@ -35,7 +46,6 @@ sealed class AlliumCli {
             ["user"] = Settings.Username,
             ["unit"] = Settings.Unit
         };
-
 
         if (args.Count == 1) {
             Utils.Error("expected specified setting after '--setting'.");
@@ -46,7 +56,7 @@ sealed class AlliumCli {
         if (settingMap.TryGetValue(setting, out var settingValue)) {
             Utils.Println(settingValue.ToString());
         } else {
-            return Utils.Error($"unknown setting '{setting}'");
+            return Utils.Error($"unknown setting '{setting}'.");
         }
 
         return true;
