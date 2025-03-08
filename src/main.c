@@ -4,7 +4,7 @@
 #include "sql/lexer.h"
 
 int main() {
-  char *x = "select * from this table";
+  char *x = "select * from this";
   LexerState *lexer = tokenize(x);
 
   free_lexer(lexer);
