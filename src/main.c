@@ -4,12 +4,9 @@
 #include "sql/lexer.h"
 
 int main() {
-  char *x = "select";
+  char *x = "select * from this table";
+  LexerState *lexer = tokenize(x);
 
-  LexerState* lexer = init_lexer(x);
-  tokenize(lexer);
-
-
-
+  free_lexer(lexer);
   return 0;
 }

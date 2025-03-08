@@ -3,7 +3,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-typedef struct LexerState {
+typedef struct {
   Token *tokens;
   unsigned int token_capacity;
   unsigned int token_count;
@@ -11,7 +11,7 @@ typedef struct LexerState {
   char *source;
 } LexerState;
 
-extern LexerState *init_lexer(char *source);
-extern void tokenize(LexerState *lexer);
+extern LexerState *tokenize(char *source);
+extern void free_lexer(LexerState *lexer);
 
 #endif
