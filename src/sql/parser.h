@@ -2,12 +2,14 @@
 #define PARSER_H
 
 #include "token.h"
+#include "expr.h"
 
 typedef struct {
   int current;
   Token *tokens;
+  SqlQueryTree *ast;
 } ParserState;
 
-extern ParserState* parse_ast(Token* tokens);
+extern SqlQueryTree* parse_ast(Token* tokens);
 
 #endif

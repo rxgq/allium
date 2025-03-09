@@ -39,15 +39,13 @@ void free_lexer(LexerState *lexer) {
   free(lexer);
 }
 
-static LexerState *init_lexer(char *source) {
+static void init_lexer(char *source) {
   lexer = (LexerState *)malloc(sizeof(LexerState));
   lexer->source = strdup(source);
   lexer->token_count = 0;
   lexer->token_capacity = 1;
   lexer->current = 0;
   lexer->tokens = (Token *)malloc(sizeof(Token) * lexer->token_capacity);
-
-  return lexer;
 }
 
 static inline void advance() {
@@ -128,7 +126,7 @@ static void add_token(Token *token) {
 }
 
 LexerState *tokenize(char *source) {
-  lexer = init_lexer(source);
+  init_lexer(source);
 
   while (lexer->current < strlen(lexer->source)) {
     Token *token = parse_token();

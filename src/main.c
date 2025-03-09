@@ -12,10 +12,11 @@ int main() {
     return 1;
   }
 
-  char *x = "select * from this";
+  char *x = "select col from this";
   LexerState *lexer = tokenize(x);
 
-  ParserState *parser = parse_ast(lexer->tokens);
+  SqlQueryTree *tree = parse_ast(lexer->tokens);
+
 
   fclose(fptr);
 
