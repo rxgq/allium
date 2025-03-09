@@ -19,6 +19,7 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_BAD: return "bad token";
     case TOKEN_STAR: return "star";
     case TOKEN_NONE: return "none";
+    case TOKEN_EOF: return "eof";
   }
 
   return "unknown type";

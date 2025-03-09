@@ -10,6 +10,7 @@ static LexerState *lexer;
 static TokenMapEntry keywords[] = {
   {"select", TOKEN_SELECT},
   {"from", TOKEN_FROM},
+  {"as", TOKEN_AS},
   {NULL, TOKEN_NONE},
 };
 
@@ -18,16 +19,18 @@ static TokenMapEntry symbols[] = {
 };
 
 static void lexer_out() {
-  printf("token count:    %d\n", lexer->token_count);
-  printf("token capacity: %d\n", lexer->token_capacity);
-  printf("lexer current:  %d\n", lexer->current);
-  printf("source length:  %zd\n", strlen(lexer->source));
-  printf("\n");
+  printf("Lexer Result:\n");
+  printf("  token count:    %d\n", lexer->token_count);
+  printf("  token capacity: %d\n", lexer->token_capacity);
+  printf("  lexer current:  %d\n", lexer->current);
+  printf("  source length:  %zd\n", strlen(lexer->source));
+  printf("\nToken List:\n");
 
   for (int i = 0; i < lexer->token_count; i++) {
     Token token = lexer->tokens[i];
-    printf("%d| '%s': %s\n", i, token.lexeme, token_type_to_str(token.type));
+    printf("  %d| '%s': %s\n", i, token.lexeme, token_type_to_str(token.type));
   }
+  printf("\n");
 }
 
 void free_lexer(LexerState *lexer) {
@@ -90,7 +93,7 @@ static Token *bad_token() {
   return token;
 }
 
-static Token* parse_symbol() {
+static Token *parse_symbol() {
   char symbol[] = { current(), '\0' };
 
   for (int i = 0; symbols[i].value != NULL; i++) {
@@ -132,8 +135,9 @@ LexerState *tokenize(char *source) {
     Token *token = parse_token();
     add_token(token);
   }
+  add_token(init_token("EOF", TOKEN_EOF));
 
-  lexer_out();
+  // lexer_out();
 
   return lexer;
 }

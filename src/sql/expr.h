@@ -1,14 +1,16 @@
 #ifndef EXPR_H
 #define EXPR_H
 
-#define MAX_COLUMNS 256 // maximum number of columns per table
-
 #include "token.h"
+#include "parser.h"
+
+#define MAX_COLUMNS 256 // maximum number of columns per table
 
 /*
 ** Forward definitions of expression structs
 */
 typedef struct SqlExpr SqlExpr;
+typedef struct ParserState ParserState;
 
 /*
 ** Enum to represent the different types of valid SQL expressions
@@ -28,7 +30,7 @@ typedef struct {
 
 typedef struct {
   SqlExpr *expr;
-  IdentifierExpr *identifier;
+  SqlExpr *identifier;
 } AliasExpr;
 
 typedef struct {
@@ -65,12 +67,13 @@ struct SqlExpr {
 ** Represents the top level data structure that holds the sql statements.
 */
 typedef struct {
-  int statement_count;
-  int statement_capacity;
+  unsigned int statement_count;
+  unsigned int statement_capacity;
   SqlExpr* statements;
 } SqlQueryTree;
 
 extern SqlExpr *init_expr(SqlExprType type);
 extern SqlQueryTree *init_sql_tree();
+extern void parser_out(ParserState *parser);
 
 #endif

@@ -64,7 +64,9 @@ static SqlExpr *parse_expr() {
 
 static SqlExpr *parse_from_clause() {
   SqlExpr *from = init_expr(EXPR_FROM_CLAUSE);
-  advance();
+  if (!expect(TOKEN_FROM)) {
+    return bad_expr();
+  }
 
   SqlExpr *expr = parse_expr();
   from->as.from_clause.expr = expr;
@@ -72,87 +74,70 @@ static SqlExpr *parse_from_clause() {
   return from;
 }
 
+static SqlExpr *parse_alias() {
+  SqlExpr *expr = parse_expr();
+
+  if (current()->type == TOKEN_AS) {
+    advance();
+    SqlExpr *alias = init_expr(EXPR_ALIAS);
+    alias->as.alias.expr = expr;
+    alias->as.alias.identifier = parse_expr();
+    printf(alias->as.alias.identifier->as.identifier.value);
+
+    return alias;
+  }
+
+  return expr;
+}
+
+static SqlExpr *parse_select_clause() {
+  SqlExpr *expr = init_expr(EXPR_SELECT_CLAUSE);
+  expr->as.select_clause.options = malloc(sizeof(SqlExpr));
+  
+  SqlExpr *identifier = parse_alias();
+  expr->as.select_clause.options[0] = *identifier;
+
+  return expr;
+}
+
 static SqlExpr *parse_select_stmt() {
   if (!expect(TOKEN_SELECT)) {
     return bad_expr();
   }
 
-  SqlExpr *expr = parse_expr(); // identifier
-
-  SqlExpr *select_clause = init_expr(EXPR_SELECT_CLAUSE);
-
-  select_clause->as.select_clause.options = malloc(sizeof(SqlExpr));
-  select_clause->as.select_clause.options[0] = *expr;
-
+  SqlExpr *select_clause = parse_select_clause();
   SqlExpr *from_clause = parse_from_clause();
 
   SqlExpr *select = init_expr(EXPR_SELECT_STMT);
 
-  select->as.select_stmt.clauses = malloc(sizeof(SqlExpr) * 2); // 2 for select and from
+  select->as.select_stmt.clauses = malloc(sizeof(SqlExpr) * 2);
   select->as.select_stmt.clauses[0] = *select_clause;
   select->as.select_stmt.clauses[1] = *from_clause;
 
   return select;
 }
 
-static void print_expr(SqlExpr *expr, int depth) {
-  switch (expr->type) {
-    case EXPR_SELECT_STMT:
-      printf("select ");
-      for (int i = 0; i < 2; i++) {
-        print_expr(&expr->as.select_stmt.clauses[i], depth + 1);
-      }
-      return;
-
-    case EXPR_SELECT_CLAUSE:
-      print_expr(&expr->as.select_clause.options[0], depth + 1);
-      return;
-
-    case EXPR_IDENTIFIER:
-      printf("%s ", expr->as.identifier.value);
-      return;
-
-    case EXPR_FROM_CLAUSE:
-      printf("from ");
-      print_expr(expr->as.from_clause.expr, depth + 1);
-      return;
-
-    case BAD_EXPR:
-      printf("bad expr");
-      return;
-      
-    default: 
-      printf("\n  unknown type '%d'", expr->type);
+static SqlExpr *parse_stmt() {
+  if (current()->type == TOKEN_SELECT) {
+    return parse_select_stmt();
   }
-}
 
-static void parser_out() {
-  // for (int i = 0; i < parser->ast->statement_count; i++) {
-  //   printf("expr type: %d", parser->ast->statements[i].type);
-  // }
-
-  for (int i = 0; i < parser->ast->statement_count; i++) {
-    print_expr(&parser->ast->statements[i], 1);
-  }
+  return bad_expr();
 }
 
 SqlQueryTree *parse_ast(Token *tokens) {
   init_parser(tokens);
 
-  while (current() != NULL) {
-    SqlExpr *expr = parse_select_stmt();
-    if (expr->type == BAD_EXPR) {
-      printf("bad expr");
-      return parser->ast;
-    }
-
+  while (current()->type != TOKEN_EOF) {
+    SqlExpr *expr = parse_stmt();
     add_expr(expr);
 
-    break;
-    advance();
+    if (expr->type == BAD_EXPR) {
+      break;
+    }
   }
 
-  parser_out();
+  parser_out(parser);
 
   return parser->ast;
 }

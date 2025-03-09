@@ -4,11 +4,11 @@
 #include "token.h"
 #include "expr.h"
 
-typedef struct {
-  int current;
+struct ParserState {
+  unsigned int current;
   Token *tokens;
   SqlQueryTree *ast;
-} ParserState;
+};
 
 extern SqlQueryTree* parse_ast(Token* tokens);
 

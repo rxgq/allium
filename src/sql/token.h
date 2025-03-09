@@ -4,11 +4,15 @@
 typedef enum {
   TOKEN_SELECT,
   TOKEN_FROM,
+  TOKEN_AS,
 
   TOKEN_STAR,
 
   TOKEN_IDENTIFIER,
   TOKEN_BAD,
+
+  // the last token in the parsed list
+  TOKEN_EOF,
 
   // used as a delimeter in the keywords map
   TOKEN_NONE,
