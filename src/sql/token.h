@@ -7,6 +7,7 @@ typedef enum {
   TOKEN_AS,
 
   TOKEN_STAR,
+  TOKEN_COMMA,
 
   TOKEN_IDENTIFIER,
   TOKEN_BAD,

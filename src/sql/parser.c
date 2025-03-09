@@ -22,10 +22,12 @@ static inline void advance() {
   parser->current++;
 }
 
-static int expect(TokenType type) {
-  Token *token = current();
+static inline int match(TokenType type) {
+  return current()->type == type ? 1 : 0;
+}
 
-  if (token->type == type) {
+static int expect(TokenType type) {
+  if (match(type)) {
     advance();
     return 1;
   }
@@ -47,7 +49,7 @@ static void add_expr(SqlExpr *expr) {
   parser->ast->statement_count++;
 }
 
-static SqlExpr *parse_expr() {
+static SqlExpr *parse_primary() {
   Token *token = current();
   advance();
 
@@ -62,27 +64,15 @@ static SqlExpr *parse_expr() {
   return bad_expr();
 }
 
-static SqlExpr *parse_from_clause() {
-  SqlExpr *from = init_expr(EXPR_FROM_CLAUSE);
-  if (!expect(TOKEN_FROM)) {
-    return bad_expr();
-  }
-
-  SqlExpr *expr = parse_expr();
-  from->as.from_clause.expr = expr;
-
-  return from;
-}
-
 static SqlExpr *parse_alias() {
-  SqlExpr *expr = parse_expr();
+  SqlExpr *expr = parse_primary();
 
-  if (current()->type == TOKEN_AS) {
+  if (match(TOKEN_AS)) {
     advance();
+
     SqlExpr *alias = init_expr(EXPR_ALIAS);
     alias->as.alias.expr = expr;
-    alias->as.alias.identifier = parse_expr();
-    printf(alias->as.alias.identifier->as.identifier.value);
+    alias->as.alias.identifier = parse_primary();
 
     return alias;
   }
@@ -90,12 +80,39 @@ static SqlExpr *parse_alias() {
   return expr;
 }
 
+static SqlExpr *parse_expr() {
+  return parse_alias();
+}
+
+static SqlExpr *parse_from_clause() {
+  if (!expect(TOKEN_FROM)) {
+    return bad_expr();
+  }
+
+  SqlExpr *from = init_expr(EXPR_FROM_CLAUSE);
+
+  SqlExpr *expr = parse_expr();
+  from->as.from_clause.expr = expr;
+
+  return from;
+}
+
 static SqlExpr *parse_select_clause() {
   SqlExpr *expr = init_expr(EXPR_SELECT_CLAUSE);
-  expr->as.select_clause.options = malloc(sizeof(SqlExpr));
-  
-  SqlExpr *identifier = parse_alias();
-  expr->as.select_clause.options[0] = *identifier;
+  expr->as.select_clause.options_capacity = 1;
+  expr->as.select_clause.options_count = 0;
+  expr->as.select_clause.options = malloc(sizeof(SqlExpr) * 3); // temporarily 3 
+
+  parser->current--;
+
+  do {
+    advance();
+
+    SqlExpr *identifier = parse_expr();
+    expr->as.select_clause.options[expr->as.select_clause.options_count] = *identifier;
+    expr->as.select_clause.options_count++;
+
+  } while (match(TOKEN_COMMA));
 
   return expr;
 }
@@ -118,7 +135,7 @@ static SqlExpr *parse_select_stmt() {
 }
 
 static SqlExpr *parse_stmt() {
-  if (current()->type == TOKEN_SELECT) {
+  if (match(TOKEN_SELECT)) {
     return parse_select_stmt();
   }
 
@@ -128,7 +145,7 @@ static SqlExpr *parse_stmt() {
 SqlQueryTree *parse_ast(Token *tokens) {
   init_parser(tokens);
 
-  while (current()->type != TOKEN_EOF) {
+  while (!match(TOKEN_EOF)) {
     SqlExpr *expr = parse_stmt();
     add_expr(expr);
 

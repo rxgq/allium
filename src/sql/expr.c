@@ -35,7 +35,9 @@ void print_expr(SqlExpr *expr, int depth) {
 
     case EXPR_SELECT_CLAUSE:
       printf("SELECT CLAUSE:\n");
-      print_expr(&expr->as.select_clause.options[0], depth + 1);
+      for (int i = 0; i < expr->as.select_clause.options_count; i++) {
+        print_expr(&expr->as.select_clause.options[i], depth + 1);
+      }
       return;
 
     case EXPR_IDENTIFIER:

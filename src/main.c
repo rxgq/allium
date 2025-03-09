@@ -12,7 +12,7 @@ int main() {
     return 1;
   }
 
-  char *x = "select col as colalias from this";
+  char *x = "select colone as test, coltwo, colthree as x from this as thisalias";
   LexerState *lexer = tokenize(x);
 
   SqlQueryTree *tree = parse_ast(lexer->tokens);

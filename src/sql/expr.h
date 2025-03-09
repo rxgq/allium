@@ -39,6 +39,8 @@ typedef struct {
 
 typedef struct {
   SqlExpr *options; // 'distinct', etc
+  int options_count;
+  int options_capacity;
 } SelectClause;
 
 typedef struct {

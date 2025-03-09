@@ -7,15 +7,16 @@
 
 static LexerState *lexer;
 
-static TokenMapEntry keywords[] = {
+static const TokenMapEntry keywords[] = {
   {"select", TOKEN_SELECT},
   {"from", TOKEN_FROM},
   {"as", TOKEN_AS},
   {NULL, TOKEN_NONE},
 };
 
-static TokenMapEntry symbols[] = {
+static const TokenMapEntry symbols[] = {
   {"*", TOKEN_STAR},
+  {",", TOKEN_COMMA},
 };
 
 static void lexer_out() {
@@ -49,6 +50,16 @@ static void init_lexer(char *source) {
   lexer->token_capacity = 1;
   lexer->current = 0;
   lexer->tokens = (Token *)malloc(sizeof(Token) * lexer->token_capacity);
+}
+
+static void add_token(Token *token) {
+  if (lexer->token_count >= lexer->token_capacity) {
+    lexer->token_capacity *= 2;
+    lexer->tokens = (Token *)realloc(lexer->tokens, sizeof(Token) * lexer->token_capacity);
+  }
+
+  lexer->tokens[lexer->token_count] = *token;
+  lexer->token_count++;
 }
 
 static inline void advance() {
@@ -116,16 +127,6 @@ static Token *parse_token() {
   }
 
   return parse_symbol();
-}
-
-static void add_token(Token *token) {
-  if (lexer->token_count >= lexer->token_capacity) {
-    lexer->token_capacity *= 2;
-    lexer->tokens = (Token *)realloc(lexer->tokens, sizeof(Token) * lexer->token_capacity);
-  }
-
-  lexer->tokens[lexer->token_count] = *token;
-  lexer->token_count++;
 }
 
 LexerState *tokenize(char *source) {
