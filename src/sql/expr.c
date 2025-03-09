@@ -29,7 +29,7 @@ void print_expr(SqlExpr *expr, int depth) {
     case EXPR_SELECT_STMT:
       printf("SELECT\n");
       for (int i = 0; i < 2; i++) {
-        print_expr(&expr->as.select_stmt.clauses[i], depth + 1);
+        print_expr(&expr->as.select.clauses[i], depth + 1);
       }
       return;
 
@@ -53,6 +53,18 @@ void print_expr(SqlExpr *expr, int depth) {
       printf("ALIAS:\n");
       print_expr(expr->as.alias.expr, depth + 1);
       print_expr(expr->as.alias.identifier, depth + 1);
+      return;
+
+    case EXPR_ALL_COLUMNS:
+      printf("ALL COLUMNS: *\n");
+      return;
+
+    case EXPR_CREATE_TABLE_STMT:
+      printf("CREATE TABLE\n");
+      for (int i = 0; i < 1; i++) {
+        printf("%s", expr->as.create_table.columns[i].type);
+        printf("%s", expr->as.create_table.columns[i].name);
+      }
       return;
 
     case BAD_EXPR:

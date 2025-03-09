@@ -16,13 +16,30 @@ typedef struct ParserState ParserState;
 ** Enum to represent the different types of valid SQL expressions
 */
 typedef enum {
+  EXPR_CREATE_TABLE_STMT,
   EXPR_SELECT_STMT,
   EXPR_SELECT_CLAUSE,
   EXPR_FROM_CLAUSE,
   EXPR_ALIAS,
   EXPR_IDENTIFIER,
+  EXPR_ALL_COLUMNS,
   BAD_EXPR,
 } SqlExprType;
+
+typedef struct {
+  SqlExpr *items;
+  unsigned int count;
+  unsigned int capacity;
+} SqlListExpr;
+
+typedef struct {
+  char *type;
+  char *name;
+} ColumnDefinition;
+
+typedef struct {
+  char *value;
+} AllColumns;
 
 typedef struct {
   char *value;
@@ -39,13 +56,18 @@ typedef struct {
 
 typedef struct {
   SqlExpr *options; // 'distinct', etc
-  int options_count;
-  int options_capacity;
+  unsigned int options_count;
+  unsigned int options_capacity;
 } SelectClause;
 
 typedef struct {
   SqlExpr *clauses;
 } SelectStmt;
+
+typedef struct {
+  SqlExpr *name;
+  ColumnDefinition *columns;
+} CreateTableStmt;
 
 /*
 ** Data structure for representing a single SQL statement or clause.
@@ -54,12 +76,14 @@ struct SqlExpr {
   SqlExprType type;
 
   union {
-    SelectStmt select_stmt;
+    CreateTableStmt create_table;
+    SelectStmt select;
     
     SelectClause select_clause;
     FromClause from_clause;
 
     AliasExpr alias;
+    AllColumns all_columns;
 
     IdentifierExpr identifier;
   } as;

@@ -59,6 +59,12 @@ static SqlExpr *parse_primary() {
 
     return expr;
   }
+  else if (token->type == TOKEN_STAR) {
+    SqlExpr *expr = init_expr(EXPR_ALL_COLUMNS);
+    expr->as.all_columns.value = token->lexeme;
+
+    return expr;
+  }
 
   printf("\nAn unknown expression was found while parsing expression: %d\n", token->lexeme);
   return bad_expr();
@@ -101,7 +107,7 @@ static SqlExpr *parse_select_clause() {
   SqlExpr *expr = init_expr(EXPR_SELECT_CLAUSE);
   expr->as.select_clause.options_capacity = 1;
   expr->as.select_clause.options_count = 0;
-  expr->as.select_clause.options = malloc(sizeof(SqlExpr) * 3); // temporarily 3 
+  expr->as.select_clause.options = malloc(sizeof(SqlExpr));
 
   parser->current--;
 
@@ -109,6 +115,11 @@ static SqlExpr *parse_select_clause() {
     advance();
 
     SqlExpr *identifier = parse_expr();
+    if (expr->as.select_clause.options_count >= expr->as.select_clause.options_capacity) {
+      expr->as.select_clause.options_capacity *= 2;
+      expr->as.select_clause.options = realloc(expr->as.select_clause.options, sizeof(SqlExpr) * expr->as.select_clause.options_capacity);
+    }
+
     expr->as.select_clause.options[expr->as.select_clause.options_count] = *identifier;
     expr->as.select_clause.options_count++;
 
@@ -127,16 +138,59 @@ static SqlExpr *parse_select_stmt() {
 
   SqlExpr *select = init_expr(EXPR_SELECT_STMT);
 
-  select->as.select_stmt.clauses = malloc(sizeof(SqlExpr) * 2);
-  select->as.select_stmt.clauses[0] = *select_clause;
-  select->as.select_stmt.clauses[1] = *from_clause;
+  select->as.select.clauses = malloc(sizeof(SqlExpr) * 2);
+  select->as.select.clauses[0] = *select_clause;
+  select->as.select.clauses[1] = *from_clause;
 
   return select;
+}
+
+static SqlExpr *parse_create_table_stmt() {
+  if (!expect(TOKEN_CREATE)) {
+    return bad_expr();
+  }
+
+  if (!expect(TOKEN_TABLE)) {
+    return bad_expr();
+  }
+
+  SqlExpr *expr = init_expr(EXPR_CREATE_TABLE_STMT);
+
+  SqlExpr *table_name = parse_expr();
+  expr->as.create_table.name = table_name;
+  expr->as.create_table.columns = malloc(sizeof(ColumnDefinition));
+
+  if (!expect(TOKEN_LPAREN)) {
+    return bad_expr();
+  }
+
+  do {
+    SqlExpr *type = parse_expr();
+    SqlExpr *column_name = parse_expr();
+
+    ColumnDefinition *column = malloc(sizeof(ColumnDefinition));
+    column->name = column_name->as.identifier.value;
+    column->type = type->as.identifier.value;
+
+    expr->as.create_table.columns[0] = *column;
+
+    break;
+
+  } while (!match(TOKEN_COMMA));
+
+  if (!expect(TOKEN_RPAREN)) {
+    return bad_expr();
+  }
+
+  return expr;
 }
 
 static SqlExpr *parse_stmt() {
   if (match(TOKEN_SELECT)) {
     return parse_select_stmt();
+  }
+  else if (match(TOKEN_CREATE)) {
+    return parse_create_table_stmt();
   }
 
   return bad_expr();

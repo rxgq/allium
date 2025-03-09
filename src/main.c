@@ -12,13 +12,14 @@ int main() {
     return 1;
   }
 
-  char *x = "select colone as test, coltwo, colthree as x from this as thisalias";
+  char *x = "create table test ( int x )";
   LexerState *lexer = tokenize(x);
 
-  SqlQueryTree *tree = parse_ast(lexer->tokens);
+  SqlQueryTree *ast = parse_ast(lexer->tokens);
 
   fclose(fptr);
 
   free_lexer(lexer);
+
   return 0;
 }

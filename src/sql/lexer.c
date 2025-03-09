@@ -11,12 +11,16 @@ static const TokenMapEntry keywords[] = {
   {"select", TOKEN_SELECT},
   {"from", TOKEN_FROM},
   {"as", TOKEN_AS},
+  {"create", TOKEN_CREATE},
+  {"table", TOKEN_TABLE},
   {NULL, TOKEN_NONE},
 };
 
 static const TokenMapEntry symbols[] = {
   {"*", TOKEN_STAR},
   {",", TOKEN_COMMA},
+  {"(", TOKEN_LPAREN},
+  {")", TOKEN_RPAREN},
 };
 
 static void lexer_out() {
@@ -138,7 +142,7 @@ LexerState *tokenize(char *source) {
   }
   add_token(init_token("EOF", TOKEN_EOF));
 
-  // lexer_out();
+  lexer_out();
 
   return lexer;
 }

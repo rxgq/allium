@@ -19,6 +19,12 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_BAD: return "bad token";
     case TOKEN_STAR: return "star";
     case TOKEN_NONE: return "none";
+    case TOKEN_AS: return "as";
+    case TOKEN_COMMA: return "comma";
+    case TOKEN_CREATE: return "create";
+    case TOKEN_LPAREN: return "left parenthesis";
+    case TOKEN_RPAREN: return "right parenthesis";
+    case TOKEN_TABLE: return "table";
     case TOKEN_EOF: return "eof";
   }
 
