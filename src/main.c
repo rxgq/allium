@@ -12,7 +12,7 @@ int main() {
     return 1;
   }
 
-  char *x = "create table test ( int x )";
+  char *x = "create table test ( int x, int y )";
   LexerState *lexer = tokenize(x);
 
   SqlQueryTree *ast = parse_ast(lexer->tokens);

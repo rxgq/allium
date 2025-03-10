@@ -105,19 +105,19 @@ static SqlExpr *parse_from_clause() {
 
 static SqlExpr *parse_select_clause() {
   SqlExpr *expr = init_expr(EXPR_SELECT_CLAUSE);
-  expr->as.select_clause.options_capacity = 1;
   expr->as.select_clause.options_count = 0;
   expr->as.select_clause.options = malloc(sizeof(SqlExpr));
 
   parser->current--;
 
+  int capacity = 1;
   do {
     advance();
 
     SqlExpr *identifier = parse_expr();
-    if (expr->as.select_clause.options_count >= expr->as.select_clause.options_capacity) {
-      expr->as.select_clause.options_capacity *= 2;
-      expr->as.select_clause.options = realloc(expr->as.select_clause.options, sizeof(SqlExpr) * expr->as.select_clause.options_capacity);
+    if (expr->as.select_clause.options_count >= capacity) {
+      capacity *= 2;
+      expr->as.select_clause.options = realloc(expr->as.select_clause.options, sizeof(SqlExpr) * capacity);
     }
 
     expr->as.select_clause.options[expr->as.select_clause.options_count] = *identifier;
@@ -158,13 +158,19 @@ static SqlExpr *parse_create_table_stmt() {
 
   SqlExpr *table_name = parse_expr();
   expr->as.create_table.name = table_name;
+  expr->as.create_table.column_count = 0;
   expr->as.create_table.columns = malloc(sizeof(ColumnDefinition));
 
   if (!expect(TOKEN_LPAREN)) {
     return bad_expr();
   }
 
+  int capacity = 1;
+  // int count = 1;
+  parser->current--;
   do {
+    advance();
+
     SqlExpr *type = parse_expr();
     SqlExpr *column_name = parse_expr();
 
@@ -172,11 +178,10 @@ static SqlExpr *parse_create_table_stmt() {
     column->name = column_name->as.identifier.value;
     column->type = type->as.identifier.value;
 
-    expr->as.create_table.columns[0] = *column;
+    expr->as.create_table.columns[expr->as.create_table.column_count] = *column;
+    expr->as.create_table.column_count++;
 
-    break;
-
-  } while (!match(TOKEN_COMMA));
+  } while (match(TOKEN_COMMA));
 
   if (!expect(TOKEN_RPAREN)) {
     return bad_expr();

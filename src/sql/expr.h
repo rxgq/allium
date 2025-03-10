@@ -27,12 +27,6 @@ typedef enum {
 } SqlExprType;
 
 typedef struct {
-  SqlExpr *items;
-  unsigned int count;
-  unsigned int capacity;
-} SqlListExpr;
-
-typedef struct {
   char *type;
   char *name;
 } ColumnDefinition;
@@ -57,8 +51,8 @@ typedef struct {
 typedef struct {
   SqlExpr *options; // 'distinct', etc
   unsigned int options_count;
-  unsigned int options_capacity;
 } SelectClause;
+
 
 typedef struct {
   SqlExpr *clauses;
@@ -67,6 +61,7 @@ typedef struct {
 typedef struct {
   SqlExpr *name;
   ColumnDefinition *columns;
+  int column_count;
 } CreateTableStmt;
 
 /*

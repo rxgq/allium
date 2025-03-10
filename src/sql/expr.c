@@ -20,10 +20,14 @@ SqlQueryTree *init_sql_tree() {
   return tree;
 }
 
-void print_expr(SqlExpr *expr, int depth) {
+void print_depth(int depth) {
   for (int i = 0; i < depth; i++) {
     printf("  ");
   }
+}
+
+void print_expr(SqlExpr *expr, int depth) {
+  print_depth(depth);
 
   switch (expr->type) {
     case EXPR_SELECT_STMT:
@@ -61,9 +65,9 @@ void print_expr(SqlExpr *expr, int depth) {
 
     case EXPR_CREATE_TABLE_STMT:
       printf("CREATE TABLE\n");
-      for (int i = 0; i < 1; i++) {
-        printf("%s", expr->as.create_table.columns[i].type);
-        printf("%s", expr->as.create_table.columns[i].name);
+      for (int i = 0; i < expr->as.create_table.column_count; i++) {
+        print_depth(depth + 1);
+        printf("%s %s\n", expr->as.create_table.columns[i].type, expr->as.create_table.columns[i].name);
       }
       return;
 
