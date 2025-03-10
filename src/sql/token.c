@@ -3,14 +3,6 @@
 
 #include "token.h"
 
-Token *init_token(char *lexeme, TokenType type) {
-  Token *token = (Token *)malloc(sizeof(Token));
-  token->lexeme = strdup(lexeme);
-  token->type = type;
-
-  return token;
-}
-
 char *token_type_to_str(TokenType type) {
   switch (type) {
     case TOKEN_SELECT: return "select";

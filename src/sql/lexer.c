@@ -33,7 +33,7 @@ static void lexer_out() {
 
   for (int i = 0; i < lexer->token_count; i++) {
     Token token = lexer->tokens[i];
-    printf("  %d| '%s': %s\n", i, token.lexeme, token_type_to_str(token.type));
+    printf("  %d| '%s': %s, line %d\n", i, token.lexeme, token_type_to_str(token.type), token.line);
   }
   printf("\n");
 }
@@ -47,12 +47,22 @@ void free_lexer(LexerState *lexer) {
   free(lexer);
 }
 
+static Token *init_token(char *lexeme, TokenType type) {
+  Token *token = (Token *)malloc(sizeof(Token));
+  token->lexeme = strdup(lexeme);
+  token->type = type;
+  token->line = lexer->line;
+
+  return token;
+}
+
 static void init_lexer(char *source) {
   lexer = (LexerState *)malloc(sizeof(LexerState));
   lexer->source = strdup(source);
   lexer->token_count = 0;
   lexer->token_capacity = 1;
   lexer->current = 0;
+  lexer->line = 1;
   lexer->tokens = (Token *)malloc(sizeof(Token) * lexer->token_capacity);
 }
 
@@ -140,6 +150,7 @@ LexerState *tokenize(char *source) {
 
   while (!is_end()) {
     while (!is_end() && isspace(current())) {
+      if (current() == '\n') lexer->line++;
       advance();
     }
     if (is_end()) break;

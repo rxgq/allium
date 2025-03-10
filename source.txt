@@ -1,5 +1,0 @@
-create table test (
-  int y,
-  int y,
-
-)

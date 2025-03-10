@@ -7,6 +7,7 @@
 struct ParserState {
   unsigned int current;
   Token *tokens;
+  Token *error_token; // the token that caused the error, null if no error
   SqlQueryTree *ast;
 };
 

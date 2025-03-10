@@ -81,7 +81,7 @@ void print_expr(SqlExpr *expr, int depth) {
 }
 
 void parser_out(ParserState *parser) {
-  printf("SQL Parse Tree:\n");
+  printf("\n\nSQL Parse Tree:\n");
   for (int i = 0; i < parser->ast->statement_count; i++) {
     print_expr(&parser->ast->statements[i], 1);
   }

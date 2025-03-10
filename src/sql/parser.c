@@ -35,8 +35,21 @@ static int expect(TokenType type) {
   return 0;
 }
 
+// sets the previous token as the error token
+static void parser_error() {
+  parser->current--;
+  parser->error_token = current();
+  advance();
+}
+
 static SqlExpr *bad_expr() {
+  parser_error();
   return init_expr(BAD_EXPR);
+}
+
+static int is_bad(SqlExpr *expr) {
+  if (expr->type == BAD_EXPR) return 1;
+  return 0;
 }
 
 static void add_expr(SqlExpr *expr) {
@@ -51,27 +64,30 @@ static void add_expr(SqlExpr *expr) {
 
 static SqlExpr *parse_primary() {
   Token *token = current();
-  advance();
 
   if (token->type == TOKEN_IDENTIFIER) {
+    advance();
+
     SqlExpr *expr = init_expr(EXPR_IDENTIFIER);
     expr->as.identifier.value = strdup(token->lexeme);
 
     return expr;
   }
   else if (token->type == TOKEN_STAR) {
+    advance();
+
     SqlExpr *expr = init_expr(EXPR_ALL_COLUMNS);
     expr->as.all_columns.value = token->lexeme;
 
     return expr;
   }
 
-  printf("\nAn unknown expression was found while parsing expression: %d\n", token->lexeme);
   return bad_expr();
 }
 
 static SqlExpr *parse_alias() {
   SqlExpr *expr = parse_primary();
+  if (is_bad(expr)) return expr;
 
   if (match(TOKEN_AS)) {
     advance();
@@ -79,6 +95,7 @@ static SqlExpr *parse_alias() {
     SqlExpr *alias = init_expr(EXPR_ALIAS);
     alias->as.alias.expr = expr;
     alias->as.alias.identifier = parse_primary();
+    if (is_bad(alias->as.alias.identifier)) return alias->as.alias.identifier;
 
     return alias;
   }
@@ -98,6 +115,7 @@ static SqlExpr *parse_from_clause() {
   SqlExpr *from = init_expr(EXPR_FROM_CLAUSE);
 
   SqlExpr *expr = parse_expr();
+  if (is_bad(expr)) return expr;
   from->as.from_clause.expr = expr;
 
   return from;
@@ -115,6 +133,8 @@ static SqlExpr *parse_select_clause() {
     advance();
 
     SqlExpr *identifier = parse_expr();
+  if (is_bad(identifier)) return identifier;
+
     if (expr->as.select_clause.options_count >= capacity) {
       capacity *= 2;
       expr->as.select_clause.options = realloc(expr->as.select_clause.options, sizeof(SqlExpr) * capacity);
@@ -134,7 +154,10 @@ static SqlExpr *parse_select_stmt() {
   }
 
   SqlExpr *select_clause = parse_select_clause();
+  if (is_bad(select_clause)) return select_clause;
+
   SqlExpr *from_clause = parse_from_clause();
+  if (is_bad(from_clause)) return from_clause;
 
   SqlExpr *select = init_expr(EXPR_SELECT_STMT);
 
@@ -157,6 +180,8 @@ static SqlExpr *parse_create_table_stmt() {
   SqlExpr *expr = init_expr(EXPR_CREATE_TABLE_STMT);
 
   SqlExpr *table_name = parse_expr();
+  if (is_bad(table_name)) return table_name;
+
   expr->as.create_table.name = table_name;
   expr->as.create_table.column_count = 0;
   expr->as.create_table.columns = malloc(sizeof(ColumnDefinition));
@@ -172,7 +197,10 @@ static SqlExpr *parse_create_table_stmt() {
     advance();
 
     SqlExpr *type = parse_expr();
+    if (type->type == BAD_EXPR) return type;
+
     SqlExpr *column_name = parse_expr();
+    if (column_name->type == BAD_EXPR) return column_name;
 
     ColumnDefinition *column = malloc(sizeof(ColumnDefinition));
     column->name = column_name->as.identifier.value;
@@ -209,12 +237,12 @@ SqlQueryTree *parse_ast(Token *tokens) {
     add_expr(expr);
 
     if (expr->type == BAD_EXPR) {
-      printf("syntax error");
+      printf("syntax error on line %d, near '%s'", parser->error_token->line, parser->error_token->lexeme);
       break;
     }
   }
 
-  // parser_out(parser);
+  parser_out(parser);
 
   return parser->ast;
 }

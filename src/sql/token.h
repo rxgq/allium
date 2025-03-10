@@ -26,6 +26,7 @@ typedef enum {
 typedef struct {
   char *lexeme;
   TokenType type;
+  unsigned int line;
 } Token;
 
 typedef struct {
@@ -33,7 +34,6 @@ typedef struct {
   TokenType type;
 } TokenMapEntry;
 
-extern Token *init_token(char *lexeme, TokenType type);
 extern char *token_type_to_str(TokenType type);
 
 #endif

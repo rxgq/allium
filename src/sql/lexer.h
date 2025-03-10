@@ -9,6 +9,7 @@ typedef struct {
   unsigned int token_count;
   unsigned int current;
   char *source;
+  unsigned int line;
 } LexerState;
 
 extern LexerState *tokenize(char *source);
