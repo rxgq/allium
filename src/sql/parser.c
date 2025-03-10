@@ -7,11 +7,20 @@
 
 static ParserState *parser;
 
-static void init_parser(Token *tokens) {
-  parser = malloc(sizeof(ParserState));
+ParserState *init_parser(Token *tokens, int token_count) {
+  ParserState *parser = malloc(sizeof(ParserState));
   parser->ast = init_sql_tree();
   parser->tokens = tokens;
+  parser->token_count = token_count;
   parser->current = 0;
+
+  return parser;
+}
+
+void free_parser(ParserState *parser) {
+  // to be continued
+
+  free(parser);
 }
 
 static inline Token *current() {
@@ -47,7 +56,7 @@ static SqlExpr *bad_expr() {
   return init_expr(BAD_EXPR);
 }
 
-static int is_bad(SqlExpr *expr) {
+static inline int is_bad(SqlExpr *expr) {
   if (expr->type == BAD_EXPR) return 1;
   return 0;
 }
@@ -186,7 +195,7 @@ static SqlExpr *parse_create_table_stmt() {
   expr->as.create_table.column_count = 0;
   expr->as.create_table.columns = malloc(sizeof(ColumnDefinition));
 
-  if (!expect(TOKEN_LPAREN)) {
+  if (!expect(TOKEN_LEFT_PAREN)) {
     return bad_expr();
   }
 
@@ -197,10 +206,10 @@ static SqlExpr *parse_create_table_stmt() {
     advance();
 
     SqlExpr *type = parse_expr();
-    if (type->type == BAD_EXPR) return type;
+    if (is_bad(type)) return type;
 
     SqlExpr *column_name = parse_expr();
-    if (column_name->type == BAD_EXPR) return column_name;
+    if (is_bad(column_name)) return column_name;
 
     ColumnDefinition *column = malloc(sizeof(ColumnDefinition));
     column->name = column_name->as.identifier.value;
@@ -211,7 +220,7 @@ static SqlExpr *parse_create_table_stmt() {
 
   } while (match(TOKEN_COMMA));
 
-  if (!expect(TOKEN_RPAREN)) {
+  if (!expect(TOKEN_RIGHT_PAREN)) {
     return bad_expr();
   }
 
@@ -229,20 +238,53 @@ static SqlExpr *parse_stmt() {
   return bad_expr();
 }
 
-SqlQueryTree *parse_ast(Token *tokens) {
-  init_parser(tokens);
+static short get_num_len(int n) {
+  if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
+  if (n < 10) return 1;
+  return 1 + get_num_len(n / 10);
+}
+
+static void output_error() {
+  int errTokLine = parser->error_token->line;
+  int errTokCol = 0;
+
+  printf("line %d: ", errTokLine);
+  int prefixLen = get_num_len(errTokLine) + 5;
+
+  for (int i = 0; i < parser->token_count; i++) {
+    if (parser->tokens[i].line != errTokLine) continue;
+
+    if (&parser->tokens[i] == parser->error_token) {
+      errTokCol = prefixLen;
+    }
+
+    printf("%s ", parser->tokens[i].lexeme);
+    prefixLen += strlen(parser->tokens[i].lexeme) + 1;
+  }
+  printf("\n");
+
+  for (int i = 0; i < errTokCol; i++) {
+    printf(" ");
+  }
+  printf("^\n");
+
+  printf("  Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
+}
+
+ParserState *parse_ast(Token *tokens, int token_count) {
+  parser = init_parser(tokens, token_count);
 
   while (!match(TOKEN_EOF)) {
     SqlExpr *expr = parse_stmt();
     add_expr(expr);
 
-    if (expr->type == BAD_EXPR) {
-      printf("syntax error on line %d, near '%s'", parser->error_token->line, parser->error_token->lexeme);
+    if (is_bad(expr)) {
+      output_error();
       break;
     }
   }
 
-  parser_out(parser);
+  // parser_out(parser);
 
-  return parser->ast;
+  return parser;
 }

@@ -53,7 +53,6 @@ typedef struct {
   unsigned int options_count;
 } SelectClause;
 
-
 typedef struct {
   SqlExpr *clauses;
 } SelectStmt;

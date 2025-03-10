@@ -28,11 +28,10 @@ int main() {
   LexerState *lexer = tokenize(buff);
   free(buff);
 
-  SqlQueryTree *ast = parse_ast(lexer->tokens);
+  ParserState *parser = parse_ast(lexer->tokens, lexer->token_count);
+  free_lexer(lexer);
 
   fclose(fptr);
-
-  // free_lexer(lexer);
 
   return 0;
 }

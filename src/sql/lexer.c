@@ -19,8 +19,8 @@ static const TokenMapEntry keywords[] = {
 static const TokenMapEntry symbols[] = {
   {"*", TOKEN_STAR},
   {",", TOKEN_COMMA},
-  {"(", TOKEN_LPAREN},
-  {")", TOKEN_RPAREN},
+  {"(", TOKEN_LEFT_PAREN},
+  {")", TOKEN_RIGHT_PAREN},
 };
 
 static void lexer_out() {
@@ -161,7 +161,7 @@ LexerState *tokenize(char *source) {
 
   add_token(init_token("EOF", TOKEN_EOF));
 
-  lexer_out();
+  // lexer_out();
 
   return lexer;
 }
