@@ -66,6 +66,18 @@ static void add_token(Token *token) {
   lexer->token_count++;
 }
 
+static Token *bad_token() {
+  return init_token("", TOKEN_BAD);
+}
+
+static int is_end() {
+  if (lexer->current < strlen(lexer->source)) {
+    return 0;
+  }
+
+  return 1;
+}
+
 static inline void advance() {
   lexer->current++;
 }
@@ -77,12 +89,14 @@ static inline char current() {
 static Token* parse_identifier() {
   int start = lexer->current;
 
-  while (isalpha(current())) {
+  while (!is_end() && isalpha(current())) {
     advance();
   }
 
-  long size = lexer->current - start;
+  unsigned long size = lexer->current - start;
   char *lexeme = malloc(size + 1);
+
+
   strncpy(lexeme, lexer->source + start, size);
   lexeme[size] = '\0';
 
@@ -100,14 +114,6 @@ static Token* parse_identifier() {
   return token;
 }
 
-static Token *bad_token() {
-  Token *token = (Token *)malloc(sizeof(Token));
-  token->lexeme = strdup("");
-  token->type = TOKEN_BAD;
-
-  return token;
-}
-
 static Token *parse_symbol() {
   char symbol[] = { current(), '\0' };
 
@@ -122,10 +128,6 @@ static Token *parse_symbol() {
 }
 
 static Token *parse_token() {
-  while (current() == ' ') {
-    advance();
-  }
-
   if (isalpha(current())) {
     return parse_identifier();
   }
@@ -136,10 +138,16 @@ static Token *parse_token() {
 LexerState *tokenize(char *source) {
   init_lexer(source);
 
-  while (lexer->current < strlen(lexer->source)) {
+  while (!is_end()) {
+    while (!is_end() && isspace(current())) {
+      advance();
+    }
+    if (is_end()) break;
+    
     Token *token = parse_token();
     add_token(token);
   }
+
   add_token(init_token("EOF", TOKEN_EOF));
 
   lexer_out();

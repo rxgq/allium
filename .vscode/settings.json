@@ -1,5 +1,7 @@
 {
   "files.associations": {
-    "lexer.h": "c"
+    "lexer.h": "c",
+    "fcntl.h": "c",
+    "stdio.h": "c"
   }
 }

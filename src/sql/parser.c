@@ -209,11 +209,12 @@ SqlQueryTree *parse_ast(Token *tokens) {
     add_expr(expr);
 
     if (expr->type == BAD_EXPR) {
+      printf("syntax error");
       break;
     }
   }
 
-  parser_out(parser);
+  // parser_out(parser);
 
   return parser->ast;
 }
