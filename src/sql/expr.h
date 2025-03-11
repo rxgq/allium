@@ -4,8 +4,6 @@
 #include "token.h"
 #include "parser.h"
 
-#define MAX_COLUMNS 256 // maximum number of columns per table
-
 /*
 ** Forward definitions of expression structs
 */
