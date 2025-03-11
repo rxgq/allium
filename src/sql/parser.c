@@ -7,6 +7,8 @@
 
 static ParserState *parser;
 
+static SqlExpr *parse_stmt();
+
 ParserState *init_parser(Token *tokens, int token_count) {
   ParserState *parser = malloc(sizeof(ParserState));
   parser->ast = init_sql_tree();
@@ -123,7 +125,18 @@ static SqlExpr *parse_from_clause() {
 
   SqlExpr *from = init_expr(EXPR_FROM_CLAUSE);
 
-  SqlExpr *expr = parse_expr();
+  SqlExpr *expr;
+  if (match(TOKEN_LEFT_PAREN)) {
+    advance();
+    
+    expr = parse_stmt();
+    if (!expect(TOKEN_RIGHT_PAREN)) {
+      return bad_expr();
+    }
+  } else {
+    expr = parse_expr();
+  }
+
   if (is_bad(expr)) return expr;
   from->as.from_clause.expr = expr;
 
@@ -157,7 +170,7 @@ static SqlExpr *parse_select_clause() {
   return expr;
 }
 
-static SqlExpr *parse_select_stmt() {
+static SqlExpr *parse_select_stmt() { // select * from ( select * from table )
   if (!expect(TOKEN_SELECT)) {
     return bad_expr();
   }
@@ -235,7 +248,7 @@ static SqlExpr *parse_stmt() {
     return parse_create_table_stmt();
   }
 
-  return bad_expr();
+  return parse_expr();
 }
 
 static short get_num_len(int n) {
@@ -284,7 +297,7 @@ ParserState *parse_ast(Token *tokens, int token_count) {
     }
   }
 
-  // parser_out(parser);
+  parser_out(parser);
 
   return parser;
 }

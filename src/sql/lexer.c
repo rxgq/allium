@@ -161,7 +161,7 @@ LexerState *tokenize(char *source) {
 
   add_token(init_token("EOF", TOKEN_EOF));
 
-  // lexer_out();
+  lexer_out();
 
   return lexer;
 }
