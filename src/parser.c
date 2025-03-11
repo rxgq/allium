@@ -14,6 +14,7 @@ ParserState *init_parser(Token *tokens, int token_count) {
   parser->ast = init_sql_tree();
   parser->tokens = tokens;
   parser->token_count = token_count;
+  parser->error_token = NULL;
   parser->current = 0;
 
   return parser;
@@ -128,7 +129,7 @@ static SqlExpr *parse_from_clause() {
   SqlExpr *expr;
   if (match(TOKEN_LEFT_PAREN)) {
     advance();
-    
+
     expr = parse_stmt();
     if (!expect(TOKEN_RIGHT_PAREN)) {
       return bad_expr();

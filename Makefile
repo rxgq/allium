@@ -2,8 +2,8 @@ CC = gcc
 EXEC = main
 
 SRC = src/main.c
-SQL = src/sql/lexer.c src/sql/token.c src/sql/parser.c src/sql/expr.c
-STORE = src/store/page.c src/store/store.c
+SQL = src/lexer.c src/token.c src/expr.c src/parser.c 
+STORE = src/table.c src/db.c
 
 all: 
-	$(CC) $(SRC) $(SQL) $(STORE) -o $(EXEC)
+	$(CC) $(INCLUDES) $(SRC) $(SQL) $(STORE) -o $(EXEC)

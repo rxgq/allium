@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#include "sql/lexer.h"
-#include "store/page.h"
-#include "sql/parser.h"
+#include "lexer.h"
+#include "parser.h"
 
 int main() {
   FILE *fptr = fopen("source.txt", "r");
@@ -30,6 +29,8 @@ int main() {
 
   ParserState *parser = parse_ast(lexer->tokens, lexer->token_count);
   free_lexer(lexer);
+
+  // execute(parser->ast);
 
   fclose(fptr);
 

@@ -3,12 +3,13 @@
 
 #include "token.h"
 #include "parser.h"
+#include "tree.h"
 
 /*
 ** Forward definitions of expression structs
 */
-typedef struct SqlExpr SqlExpr;
 typedef struct ParserState ParserState;
+typedef struct SqlExpr SqlExpr;
 
 /*
 ** Enum to represent the different types of valid SQL expressions
@@ -60,6 +61,7 @@ typedef struct {
   ColumnDefinition *columns;
   int column_count;
 } CreateTableStmt;
+
 
 /*
 ** Data structure for representing a single SQL statement or clause.

@@ -39,11 +39,14 @@ static void lexer_out() {
 }
 
 void free_lexer(LexerState *lexer) {
+  if (!lexer) return;
+
   for (int i = 0; i < lexer->token_count; i++) {
     free(lexer->tokens[i].lexeme);
   }
 
   free(lexer->tokens);
+  free(lexer->source);
   free(lexer);
 }
 
@@ -161,7 +164,7 @@ LexerState *tokenize(char *source) {
 
   add_token(init_token("EOF", TOKEN_EOF));
 
-  lexer_out();
+  // lexer_out();
 
   return lexer;
 }
