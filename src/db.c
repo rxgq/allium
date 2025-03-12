@@ -10,7 +10,7 @@
 static ColumnType map_column_type(const char *type);
 
 
-static Database *init_db() {
+Database *init_db() {
   Database *db = malloc(sizeof(Database));
   db->table_count = 0;
   db->tables = malloc(sizeof(Table) * MAX_TABLES);
@@ -59,12 +59,17 @@ static void register_table(Database *db, Table *table) {
     return;
   }
   
-  db->tables[db->table_count] = *table;
+  db->tables[db->table_count++] = *table;
 }
 
-static void add_column_to_table(Table *table, ColumnExpr *column) {
-  TableColumn *table_column = init_table_column(column);
-  table->columns[table->column_count] = *table_column;
+static Table *get_table(Database *db, const char *table_name) {
+  for (int i = 0; i < db->table_count; i++) {
+    if (strcmp(db->tables[i].name, table_name) == 0) {
+        return &db->tables[i];
+    }
+  }
+
+  return NULL;
 }
 
 static AlliumCode execute_create_table(Database *db, SqlExpr *expr) {
@@ -82,22 +87,33 @@ static AlliumCode execute_create_table(Database *db, SqlExpr *expr) {
   return ALLIUM_SUCCESS;
 }
 
-static void execute_select(Database *db, SqlExpr *expr) {
+static AlliumCode execute_select(Database *db, SqlExpr *expr) {
+  SelectStmt *select = &expr->as.select;
+  
+  char *table_name = select->clauses[1].as.from_clause.expr->as.identifier.value;
+  Table *table = get_table(db, table_name);
+  if (!table) {
+    printf("table '%s' not found", table_name);
+  }
 
+  printf("found table");
+
+  return ALLIUM_SUCCESS;
 }
 
 AlliumCode execute_statement(Database *db, SqlExpr *expr) {
   switch (expr->type) {
     case EXPR_CREATE_TABLE_STMT:
       return execute_create_table(db, expr);
+
+    case EXPR_SELECT_STMT:
+      return execute_select(db, expr);
       
     default: return stmt_fail(expr);
   }
 }
 
-AlliumCode execute(SqlQueryTree *ast) {
-  Database *db = init_db();
-
+AlliumCode execute(Database *db, SqlQueryTree *ast) {
   for (int i = 0; i < ast->statement_count; i++) {
     AlliumCode code = execute_statement(db, &ast->statements[i]);
 

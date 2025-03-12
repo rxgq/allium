@@ -1,1 +1,1 @@
-create table test ( int x )
+select * from test
