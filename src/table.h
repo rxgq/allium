@@ -6,8 +6,9 @@
 #define MAX_COLUMN_NAME 255 // maximum column name length
 
 typedef enum {
-  INT,
-  STRING
+  COLUMN_TYPE_INT,
+  COLUMN_TYPE_STRING,
+  COLUMN_TYPE_UNKNOWN
 } ColumnType;
 
 typedef struct {
@@ -20,5 +21,7 @@ typedef struct {
   int column_count;
   char name[MAX_TABLE_NAME];
 } Table;
+
+
 
 #endif

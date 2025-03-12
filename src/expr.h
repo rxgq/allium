@@ -27,7 +27,7 @@ typedef enum {
 typedef struct {
   char *type;
   char *name;
-} ColumnDefinition;
+} ColumnExpr;
 
 typedef struct {
   char *value;
@@ -57,7 +57,7 @@ typedef struct {
 
 typedef struct {
   SqlExpr *name;
-  ColumnDefinition *columns;
+  ColumnExpr *columns;
   int column_count;
 } CreateTableStmt;
 

@@ -3,6 +3,7 @@
 
 #include "table.h"
 #include "expr.h"
+#include "codes.h"
 
 #define MAX_TABLES 32
 
@@ -11,6 +12,6 @@ typedef struct {
   Table *tables;
 } Database;
 
-extern void execute(SqlQueryTree *ast);
+extern AlliumCode execute(SqlQueryTree *ast);
 
 #endif

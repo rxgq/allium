@@ -276,7 +276,7 @@ static SqlExpr *parse_create_table_stmt() {
 
   expr->as.create_table.name = table_name;
   expr->as.create_table.column_count = 0;
-  expr->as.create_table.columns = malloc(sizeof(ColumnDefinition));
+  expr->as.create_table.columns = malloc(sizeof(ColumnExpr));
 
   if (!expect(TOKEN_LEFT_PAREN)) {
     return bad_expr();
@@ -294,7 +294,7 @@ static SqlExpr *parse_create_table_stmt() {
     SqlExpr *column_name = parse_expr();
     if (is_bad(column_name)) return column_name;
 
-    ColumnDefinition *column = malloc(sizeof(ColumnDefinition));
+    ColumnExpr *column = malloc(sizeof(ColumnExpr));
     column->name = column_name->as.identifier.value;
     column->type = type->as.identifier.value;
 

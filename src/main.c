@@ -5,6 +5,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "db.h"
+#include "codes.h"
 
 int main() {
   FILE *fptr = fopen("source.txt", "r");
@@ -31,8 +32,15 @@ int main() {
   ParserState *parser = parse_ast(lexer->tokens, lexer->token_count);
   free_lexer(lexer);
 
-  execute(parser->ast);
+  AlliumCode result = execute(parser->ast);
+  if (result != ALLIUM_SUCCESS) {
+    printf("execution failed");
+    return 1;
+  }
 
+  printf("query completed");
+
+  free_parser(parser);
   fclose(fptr);
 
   return 0;
