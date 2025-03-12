@@ -6,9 +6,7 @@
 #include "expr.h"
 #include "db.h"
 #include "codes.h"
-
-// forward definitions
-static ColumnType map_column_type(const char *type);
+#include "table.h"
 
 
 AlliumDb *init_allium(int debug) {
@@ -37,24 +35,6 @@ AlliumDb *init_allium(int debug) {
   return allium;
 }
 
-static Table *init_table(const char *name) {
-  Table *table = malloc(sizeof(Table));
-  strncpy(table->name, name, sizeof(table->name) - 1);
-  table->name[sizeof(table->name) - 1] = '\0';
-
-  table->column_count = 0;
-
-  return table;
-}
-
-static TableColumn *init_table_column(ColumnExpr *column) {
-  TableColumn *table_column = malloc(sizeof(TableColumn));
-  table_column->type = map_column_type(column->name);
-  strcpy(table_column->name, column->name);
-
-  return table_column;
-}
-
 static AlliumCode stmt_fail(AlliumDb *allium, SqlExpr *expr) {
   if (!allium->debug) return ALLIUM_DB_FAIL;
 
@@ -64,21 +44,6 @@ static AlliumCode stmt_fail(AlliumDb *allium, SqlExpr *expr) {
 
 static int is_err(AlliumCode code) {
   return code != ALLIUM_SUCCESS;
-}
-
-static ColumnType map_column_type(const char *type) {
-  if (!type) {
-    return COLUMN_TYPE_UNKNOWN;
-  }
-
-  if (strcasecmp(type, "int") == 0) {
-    return COLUMN_TYPE_INT;
-  }
-  if (strcasecmp(type, "string") == 0) {
-    return COLUMN_TYPE_STRING;
-  }
-
-  return COLUMN_TYPE_UNKNOWN;
 }
 
 static Table *get_table(Database *db, const char *table_name) {
