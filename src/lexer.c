@@ -148,7 +148,7 @@ static Token *parse_token() {
   return parse_symbol();
 }
 
-LexerState *tokenize(char *source) {
+LexerState *tokenize(int debug, char *source) {
   init_lexer(source);
 
   while (!is_end()) {
@@ -164,7 +164,7 @@ LexerState *tokenize(char *source) {
 
   add_token(init_token("EOF", TOKEN_EOF));
 
-  // lexer_out();
+  if (debug) lexer_out();
 
   return lexer;
 }

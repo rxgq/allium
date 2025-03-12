@@ -22,6 +22,4 @@ typedef struct {
   char name[MAX_TABLE_NAME];
 } Table;
 
-
-
 #endif

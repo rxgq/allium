@@ -12,7 +12,13 @@ typedef struct {
   Table *tables;
 } Database;
 
-extern AlliumCode execute(Database *db, SqlQueryTree *ast);
-extern Database *init_db();
+typedef struct {
+  Database *db;
+  int debug;
+  char *err;
+} AlliumDb;
+
+extern AlliumCode execute(AlliumDb *allium, SqlQueryTree *ast);
+extern AlliumDb *init_allium(int debug);
 
 #endif

@@ -12,7 +12,7 @@ typedef struct {
   unsigned int line;
 } LexerState;
 
-extern LexerState *tokenize(char *source);
+extern LexerState *tokenize(int debug, char *source);
 extern void free_lexer(LexerState *lexer);
 
 #endif

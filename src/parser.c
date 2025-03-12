@@ -354,7 +354,7 @@ static void output_error() {
   printf("  Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
 }
 
-ParserState *parse_ast(Token *tokens, int token_count) {
+ParserState *parse_ast(int debug, Token *tokens, int token_count) {
   parser = init_parser(tokens, token_count);
 
   while (!match(TOKEN_EOF)) {
@@ -367,7 +367,7 @@ ParserState *parse_ast(Token *tokens, int token_count) {
     }
   }
 
-  parser_out(parser);
+  if (debug) parser_out(parser);
 
   return parser;
 }

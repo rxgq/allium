@@ -31,7 +31,7 @@ typedef struct {
 
 typedef struct {
   char *value;
-} AllColumns;
+} AllColumnsExpr;
 
 typedef struct {
   char *value;
@@ -76,7 +76,7 @@ struct SqlExpr {
     FromClause from_clause;
 
     AliasExpr alias;
-    AllColumns all_columns;
+    AllColumnsExpr all_columns;
 
     IdentifierExpr identifier;
   } as;

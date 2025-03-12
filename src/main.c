@@ -11,7 +11,7 @@ char *read_file(char *path) {
   FILE *fptr = fopen("source.txt", "r");
   if (!fptr) {
     perror("error opening file");
-    return 1;
+    return NULL;
   }
 
   fseek(fptr, 0, SEEK_END);
@@ -27,37 +27,38 @@ char *read_file(char *path) {
   }
 
   fclose(fptr);
-  
+
   return buff;
 }
 
-int run_db(Database *db, char *query) {
-  LexerState *lexer = tokenize(query);
-  printf("test");
+int run_db(AlliumDb *allium, char *query) {
+  LexerState *lexer = tokenize(allium->debug, query);
 
-  ParserState *parser = parse_ast(lexer->tokens, lexer->token_count);
+  ParserState *parser = parse_ast(allium->debug, lexer->tokens, lexer->token_count);
   free_lexer(lexer);
 
-  AlliumCode result = execute(db, parser->ast);
+  AlliumCode result = execute(allium, parser->ast);
   if (result != ALLIUM_SUCCESS) {
-    printf("execution failed");
-    return 1;
+    return ALLIUM_DB_FAIL;
   }
 
-  printf("query completed");
-
+  printf("\nquery completed");
   free_parser(parser);
+
+  return ALLIUM_SUCCESS;
 }
 
 int main() {
   int exitRequested = 0;
   char inp_buff[256];
 
-  Database *db = init_db();
-    
+  int debug = 0;
+
+  AlliumDb *allium_db = init_allium(debug);
+
   printf("allium db");
   while (!exitRequested) {
-    printf("\n> ");
+    printf("\n\n> ");
     fflush(stdout);
     
     if (fgets(inp_buff, sizeof(inp_buff), stdin) == NULL) {
@@ -74,7 +75,7 @@ int main() {
       continue;
     } 
     
-    run_db(db, inp_buff);
+    AlliumCode result = run_db(allium_db, inp_buff);
   }
 
   return 0;
