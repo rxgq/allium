@@ -8,8 +8,7 @@
 /*
 ** Forward definitions of expression structs
 */
-typedef struct ParserState ParserState;
-typedef struct SqlExpr SqlExpr;
+// typedef struct SqlExpr SqlExpr;
 
 /*
 ** Enum to represent the different types of valid SQL expressions
@@ -86,14 +85,13 @@ struct SqlExpr {
 /*
 ** Represents the top level data structure that holds the sql statements.
 */
-typedef struct {
+struct SqlQueryTree {
   unsigned int statement_count;
   unsigned int statement_capacity;
   SqlExpr* statements;
-} SqlQueryTree;
+};
 
 extern SqlExpr *init_expr(SqlExprType type);
 extern SqlQueryTree *init_sql_tree();
-extern void parser_out(ParserState *parser);
 
 #endif

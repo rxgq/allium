@@ -4,6 +4,7 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "db.h"
 
 int main() {
   FILE *fptr = fopen("source.txt", "r");
@@ -30,7 +31,7 @@ int main() {
   ParserState *parser = parse_ast(lexer->tokens, lexer->token_count);
   free_lexer(lexer);
 
-  // execute(parser->ast);
+  execute(parser->ast);
 
   fclose(fptr);
 

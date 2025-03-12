@@ -1,31 +1,30 @@
-// #include "db.h"
-// #include <stdlib.h>
-// #include <stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "expr.h"
+#include "db.h"
 
-// #include "db.h"
-// #include "expr.h"
+static Database *init_db() {
+  Database *db = malloc(sizeof(Database));
+  db->table_count = 0;
+  db->tables = malloc(sizeof(Table) * MAX_TABLES);
 
-// Database *init_db() {
-//   Database *db = malloc(sizeof(Database));
-//   db->table_count = 0;
-//   db->tables = malloc(sizeof(Table) * MAX_TABLES);
+  return db;
+}
 
-//   return db;
-// }
 
-// void execute_create_table(SqlExpr *expr) {
-//   CreateTableStmt *create_table = &expr->as.create_table;
+void execute_create_table(SqlExpr *expr) {
+  CreateTableStmt *create_table = &expr->as.create_table;
 
-//   printf("creating table: ");
-//   printf(create_table->name->as.identifier.value);
-// }
+  printf(create_table->name->as.identifier.value);
 
-// void execute(SqlQueryTree *ast) {
-//   Database *db = init_db();
-//   printf("test");
+  
+}
 
-//   for (int i = 0; i < ast->statement_count; i++) {
-//     execute_create_table(&ast->statements[i]);
-//     break;
-//   }
-// }
+void execute(SqlQueryTree *ast) {
+  Database *db = init_db();
+
+  for (int i = 0; i < ast->statement_count; i++) {
+    execute_create_table(&ast->statements[i]);
+    break;
+  }
+}
