@@ -17,6 +17,7 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_LEFT_PAREN: return "left parenthesis";
     case TOKEN_RIGHT_PAREN: return "right parenthesis";
     case TOKEN_TABLE: return "table";
+    case TOKEN_DROP: return "drop";
     case TOKEN_EOF: return "eof";
   }
 

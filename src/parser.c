@@ -61,12 +61,17 @@ void print_expr(SqlExpr *expr, int depth) {
       }
       return;
 
+    case EXPR_DROP_TABLE_STMT:
+      printf("DROP TABLE\n");
+      print_expr(expr->as.drop_table.name, depth + 1);
+      return;
+
     case BAD_EXPR:
       printf("BAD EXPR\n");
       return;
       
     default: 
-      printf("Unknown type '%d'\n", expr->type);
+      printf("unknown type when printing ast: '%d'\n", expr->type);
   }
 }
 
@@ -117,13 +122,13 @@ static int expect(TokenType type) {
 }
 
 // sets the previous token as the error token
-static void parser_error() {
-  parser->current--;
+static inline void parser_error() {
+  // parser->current--;
   parser->error_token = current();
-  advance();
+  // advance();
 }
 
-static SqlExpr *bad_expr() {
+static inline SqlExpr *bad_expr() {
   parser_error();
   return init_expr(BAD_EXPR);
 }
@@ -131,6 +136,48 @@ static SqlExpr *bad_expr() {
 static inline int is_bad(SqlExpr *expr) {
   if (expr->type == BAD_EXPR) return 1;
   return 0;
+}
+
+static short get_num_len(int n) {
+  if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
+  if (n < 10) return 1;
+  return 1 + get_num_len(n / 10);
+}
+
+static void output_error() {
+  int errTokLine = parser->error_token->line;
+  int errTokCol = 0;
+
+  printf("line %d: ", errTokLine);
+  int prefixLen = get_num_len(errTokLine) + 5;
+
+  for (int i = 0; i < parser->token_count; i++) {
+    if (parser->tokens[i].line != errTokLine) continue;
+    if (parser->tokens[i].type == TOKEN_EOF) continue;
+
+    if (&parser->tokens[i] == parser->error_token) {
+      errTokCol = prefixLen;
+    }
+
+    printf("%s ", parser->tokens[i].lexeme);
+    prefixLen += strlen(parser->tokens[i].lexeme) + 1;
+  }
+  printf("\n");
+
+  for (int i = 0; i < prefixLen; i++) {
+    printf(" ");
+  }
+  printf("^\n");
+
+  TokenType err_token_type = parser->error_token->type;
+
+  // prevents the 'EOF' token from being in the 'near x' output.
+  // only applies if the error_token type is TOKEN_EOF
+  if (err_token_type == TOKEN_EOF) {
+    parser->error_token = &parser->tokens[parser->token_count - 2];
+  }
+
+  printf("  Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
 }
 
 static void add_expr(SqlExpr *expr) {
@@ -310,48 +357,37 @@ static SqlExpr *parse_create_table_stmt() {
   return expr;
 }
 
+static SqlExpr *parse_drop_table_stmt() {
+  if (!expect(TOKEN_DROP)) {
+    return bad_expr();
+  }
+
+  if (!expect(TOKEN_TABLE)) {
+    return bad_expr();
+  }
+
+  SqlExpr *expr = init_expr(EXPR_DROP_TABLE_STMT);
+
+  SqlExpr *table_name = parse_expr();
+  if (is_bad(table_name)) return table_name;
+
+  expr->as.drop_table.name = table_name;
+  return expr;
+}
+
 static SqlExpr *parse_stmt() {
-  if (match(TOKEN_SELECT)) {
-    return parse_select_stmt();
+  TokenType type = current()->type;
+
+  switch (type) {
+    case TOKEN_SELECT: 
+      return parse_select_stmt();
+    case TOKEN_CREATE:
+      return parse_create_table_stmt();
+    case TOKEN_DROP:
+      return parse_drop_table_stmt();
+    default:
+      return bad_expr();
   }
-  else if (match(TOKEN_CREATE)) {
-    return parse_create_table_stmt();
-  }
-
-  return parse_expr();
-}
-
-static short get_num_len(int n) {
-  if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
-  if (n < 10) return 1;
-  return 1 + get_num_len(n / 10);
-}
-
-static void output_error() {
-  int errTokLine = parser->error_token->line;
-  int errTokCol = 0;
-
-  printf("line %d: ", errTokLine);
-  int prefixLen = get_num_len(errTokLine) + 5;
-
-  for (int i = 0; i < parser->token_count; i++) {
-    if (parser->tokens[i].line != errTokLine) continue;
-
-    if (&parser->tokens[i] == parser->error_token) {
-      errTokCol = prefixLen;
-    }
-
-    printf("%s ", parser->tokens[i].lexeme);
-    prefixLen += strlen(parser->tokens[i].lexeme) + 1;
-  }
-  printf("\n");
-
-  for (int i = 0; i < errTokCol; i++) {
-    printf(" ");
-  }
-  printf("^\n");
-
-  printf("  Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
 }
 
 ParserState *parse_ast(int debug, Token *tokens, int token_count) {

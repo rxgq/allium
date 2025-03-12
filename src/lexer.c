@@ -13,6 +13,7 @@ static const TokenMapEntry keywords[] = {
   {"as", TOKEN_AS},
   {"create", TOKEN_CREATE},
   {"table", TOKEN_TABLE},
+  {"drop", TOKEN_DROP},
   {NULL, TOKEN_NONE},
 };
 

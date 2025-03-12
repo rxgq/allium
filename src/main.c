@@ -37,6 +37,10 @@ int run_db(AlliumDb *allium, char *query) {
   ParserState *parser = parse_ast(allium->debug, lexer->tokens, lexer->token_count);
   free_lexer(lexer);
 
+  if (parser->error_token) {
+    return ALLIUM_PARSER_FAIL;
+  }
+
   AlliumCode result = execute(allium, parser->ast);
   if (result != ALLIUM_SUCCESS) {
     return ALLIUM_DB_FAIL;

@@ -13,19 +13,35 @@ static ColumnType map_column_type(const char *type);
 
 AlliumDb *init_allium(int debug) {
   AlliumDb *allium = malloc(sizeof(AlliumDb));
+  if (!allium) {
+    return NULL;
+  }
+
   allium->debug = debug;
   allium->err = NULL;
 
   allium->db = malloc(sizeof(Database));
+  if (!allium->db) {
+    free(allium);
+    return NULL;
+  }
+
   allium->db->table_count = 0;
   allium->db->tables = malloc(sizeof(Table) * MAX_TABLES);
+  if (!allium->db->tables) {
+    free(allium->db);
+    free(allium);
+    return NULL;
+  }
 
   return allium;
 }
 
 static Table *init_table(const char *name) {
   Table *table = malloc(sizeof(Table));
-  strcpy(table->name, name);
+  strncpy(table->name, name, sizeof(table->name) - 1);
+  table->name[sizeof(table->name) - 1] = '\0';
+
   table->column_count = 0;
 
   return table;
@@ -39,7 +55,9 @@ static TableColumn *init_table_column(ColumnExpr *column) {
   return table_column;
 }
 
-static AlliumCode stmt_fail(SqlExpr *expr) {
+static AlliumCode stmt_fail(AlliumDb *allium, SqlExpr *expr) {
+  if (!allium->debug) return ALLIUM_DB_FAIL;
+
   printf("unknown statement type: %d", expr->type);
   return ALLIUM_DB_FAIL;
 }
@@ -82,20 +100,24 @@ static void set_err(AlliumDb *db, const char *fmt, ...) {
   
   va_end(args);
   
-  free(db->err);
+  if (db->err) {
+    free(db->err);
+  }
   db->err = strdup(buffer);
 }
 
 static void free_table(Table *table) {
-  for (int i = 0; i < table->column_count; i++) {
-    free(&table->columns[i]);
-  }
-
-  // free(&table->name); // warning: 'free' called on pointer 'table' with nonzero offset
+  if (!table) return;
   free(table);
 }
 
 static AlliumCode register_table(AlliumDb *allium, Table *table) {
+  if (strlen(table->name) > 255) {
+    set_err(allium, "table name too long, must be < 256 characters ");
+    free_table(table);
+    return ALLIUM_TABLE_NAME_TOO_LONG_ERR;
+  }
+
   if (allium->db->table_count == MAX_TABLES) {
     set_err(allium, "max tables of reached (%d)", MAX_TABLES);
     free_table(table);
@@ -120,7 +142,7 @@ static AlliumCode execute_create_table(AlliumDb *allium, SqlExpr *expr) {
   
   for (int i = 0; i < create_table->column_count; i++) {
     TableColumn *table_column = init_table_column(&create_table->columns[i]);
-    table->columns[table->column_count] = *table_column;
+    table->columns[table->column_count++] = *table_column;
   }
 
   AlliumCode code = register_table(allium, table);
@@ -130,16 +152,57 @@ static AlliumCode execute_create_table(AlliumDb *allium, SqlExpr *expr) {
   return ALLIUM_SUCCESS;
 }
 
+static AlliumCode execute_drop_table(AlliumDb *allium, SqlExpr *expr) {
+  DropTableStmt drop_table = expr->as.drop_table;
+
+  Table *table = get_table(allium->db, drop_table.name->as.identifier.value);
+  if (!table) {
+    set_err(allium, "table not found '%s'", drop_table.name->as.identifier.value);
+    return ALLIUM_TABLE_NOT_FOUND_ERR;
+  }
+
+  int idx = -1;
+  for (int i = 0; i < allium->db->table_count; i++) {
+    if (&allium->db->tables[i] == table) {
+      idx = i;
+      break;
+    }
+  }
+  
+  for (int i = idx; i < allium->db->table_count - 1; i++) {
+    allium->db->tables[i] = allium->db->tables[i + 1];
+  }
+
+  allium->db->table_count--;
+
+  return ALLIUM_SUCCESS;
+}
+
 static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
   SelectStmt *select = &expr->as.select;
   
   char *table_name = select->clauses[1].as.from_clause.expr->as.identifier.value;
   Table *table = get_table(allium->db, table_name);
   if (!table) {
-    printf("table '%s' not found", table_name);
+    set_err(allium, "table '%s' not found", table_name);
+    return ALLIUM_TABLE_NOT_FOUND_ERR;
   }
 
-  printf("found table");
+  // print column headers
+  for (int i = 0; i < table->column_count; i++) {
+    printf("| %s ", table->columns[i].name);
+  }
+  printf("|\n");
+
+  int total_width = table->column_count * 3 + 1;
+  for (int i = 0; i < table->column_count; i++) {
+    total_width += strlen(table->columns[i].name);
+  }
+
+  for (int i = 0; i < total_width; i++) {
+    printf("-");
+  }
+  printf("\n");
 
   return ALLIUM_SUCCESS;
 }
@@ -151,8 +214,12 @@ AlliumCode execute_statement(AlliumDb *allium, SqlExpr *expr) {
 
     case EXPR_SELECT_STMT:
       return execute_select(allium, expr);
+
+    case EXPR_DROP_TABLE_STMT:
+      return execute_drop_table(allium, expr);
       
-    default: return stmt_fail(expr);
+    default:  
+      return stmt_fail(allium, expr);
   }
 }
 

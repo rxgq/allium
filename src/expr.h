@@ -15,6 +15,7 @@
 */
 typedef enum {
   EXPR_CREATE_TABLE_STMT,
+  EXPR_DROP_TABLE_STMT,
   EXPR_SELECT_STMT,
   EXPR_SELECT_CLAUSE,
   EXPR_FROM_CLAUSE,
@@ -57,6 +58,10 @@ typedef struct {
 
 typedef struct {
   SqlExpr *name;
+} DropTableStmt;
+
+typedef struct {
+  SqlExpr *name;
   ColumnExpr *columns;
   int column_count;
 } CreateTableStmt;
@@ -70,6 +75,7 @@ struct SqlExpr {
 
   union {
     CreateTableStmt create_table;
+    DropTableStmt drop_table;
     SelectStmt select;
     
     SelectClause select_clause;
