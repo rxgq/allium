@@ -8,6 +8,9 @@ typedef enum {
   TOKEN_CREATE,
   TOKEN_TABLE,
   TOKEN_DROP,
+  TOKEN_TOP,
+  TOKEN_PERCENT,
+  TOKEN_DISTINCT,
 
   TOKEN_STAR,
   TOKEN_COMMA,
@@ -15,6 +18,7 @@ typedef enum {
   TOKEN_RIGHT_PAREN,
 
   TOKEN_IDENTIFIER,
+  TOKEN_NUMERIC,
   TOKEN_BAD,
 
   // the last token in the parsed list

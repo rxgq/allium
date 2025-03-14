@@ -18,6 +18,10 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_RIGHT_PAREN: return "right parenthesis";
     case TOKEN_TABLE: return "table";
     case TOKEN_DROP: return "drop";
+    case TOKEN_TOP: return "top";
+    case TOKEN_NUMERIC: return "numeric";
+    case TOKEN_PERCENT: return "percent";
+    case TOKEN_DISTINCT: return "distinct";
     case TOKEN_EOF: return "eof";
   }
 

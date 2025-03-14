@@ -145,29 +145,43 @@ static AlliumCode execute_drop_table(AlliumDb *allium, SqlExpr *expr) {
 
 static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
   SelectStmt *select = &expr->as.select;
-  
-  char *table_name = select->clauses[1].as.from_clause.expr->as.identifier.value;
-  Table *table = get_table(allium->db, table_name);
-  if (!table) {
-    set_err(allium, "table '%s' not found", table_name);
-    return ALLIUM_TABLE_NOT_FOUND_ERR;
-  }
 
-  // print column headers
-  for (int i = 0; i < table->column_count; i++) {
-    printf("| %s ", table->columns[i].name);
-  }
-  printf("|\n");
+  for (int i = 0; i < select->clause_count; i++) {
+    SqlExpr *clause = &select->clauses[i];
+    
+    if (clause->type == EXPR_SELECT_CLAUSE) {
 
-  int total_width = table->column_count * 3 + 1;
-  for (int i = 0; i < table->column_count; i++) {
-    total_width += strlen(table->columns[i].name);
-  }
+    }
 
-  for (int i = 0; i < total_width; i++) {
-    printf("-");
+    if (clause->type == EXPR_FROM_CLAUSE) {
+      if (clause->as.from_clause.expr->type == EXPR_SELECT_STMT) {
+        return execute_select(allium, clause->as.from_clause.expr);
+      } 
+      else if (clause->as.from_clause.expr->type == EXPR_IDENTIFIER) {
+        char *table_name = clause->as.from_clause.expr->as.identifier.value;
+        Table *table = get_table(allium->db, table_name);
+        if (!table) {
+          set_err(allium, "table '%s' not found", table_name);
+          return ALLIUM_TABLE_NOT_FOUND_ERR;
+        }
+
+        for (int i = 0; i < table->column_count; i++) {
+          printf("| %s ", table->columns[i].name);
+        }
+        printf("|\n");
+      
+        int total_width = table->column_count * 3 + 1;
+        for (int i = 0; i < table->column_count; i++) {
+          total_width += strlen(table->columns[i].name);
+        }
+      
+        for (int i = 0; i < total_width; i++) {
+          printf("-");
+        }
+        printf("\n");
+      }
+    }
   }
-  printf("\n");
 
   return ALLIUM_SUCCESS;
 }

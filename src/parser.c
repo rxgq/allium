@@ -32,10 +32,23 @@ void print_expr(SqlExpr *expr, int depth) {
       for (int i = 0; i < expr->as.select_clause.options_count; i++) {
         print_expr(&expr->as.select_clause.options[i], depth + 1);
       }
+
+      print_depth(depth + 1);
+      printf("DISTINCT: %s\n", expr->as.select_clause.is_distinct ? "true" : "false");
+
+      print_depth(depth + 1);
+      if (expr->as.select_clause.top_count) {
+        printf("TOP%s:\n", expr->as.select_clause.is_top_percent ? " PERCENT" : "");
+        print_expr(expr->as.select_clause.top_count, depth + 2);
+      }
       return;
 
     case EXPR_IDENTIFIER:
       printf("IDENTIFIER: %s\n", expr->as.identifier.value);
+      return;
+
+    case EXPR_NUMERIC:
+      printf("NUMERIC %d\n", expr->as.numeric.value);
       return;
 
     case EXPR_FROM_CLAUSE:
@@ -109,7 +122,8 @@ static inline void advance() {
 }
 
 static inline int match(TokenType type) {
-  return current()->type == type ? 1 : 0;
+  int result = current()->type == type ? 1 : 0;
+  return result;
 }
 
 static int expect(TokenType type) {
@@ -209,6 +223,15 @@ static SqlExpr *parse_primary() {
 
     return expr;
   }
+  else if (token->type == TOKEN_NUMERIC) {
+    advance();
+    printf("test");
+
+    SqlExpr *expr = init_expr(EXPR_NUMERIC);
+    expr->as.numeric.value = 27; // temporary
+
+    return expr;
+  }
 
   return bad_expr();
 }
@@ -261,9 +284,35 @@ static SqlExpr *parse_from_clause() {
 }
 
 static SqlExpr *parse_select_clause() {
+  if (!expect(TOKEN_SELECT)) {
+    return bad_expr();
+  }
+
   SqlExpr *expr = init_expr(EXPR_SELECT_CLAUSE);
   expr->as.select_clause.options_count = 0;
   expr->as.select_clause.options = malloc(sizeof(SqlExpr));
+  expr->as.select_clause.is_distinct = 0;
+  expr->as.select_clause.top_count = NULL;
+  expr->as.select_clause.is_top_percent = 0;
+
+  if (match(TOKEN_DISTINCT)) {
+    advance();
+    expr->as.select_clause.is_distinct = 1;
+  }
+
+  if (match(TOKEN_TOP)) {
+    advance();
+
+    SqlExpr *top_count = parse_expr();
+    if (is_bad(top_count)) return top_count;
+
+    expr->as.select_clause.top_count = top_count;
+
+    if (match(TOKEN_PERCENT)) {
+      advance();
+      expr->as.select_clause.is_top_percent = 1;
+    }
+  }
 
   parser->current--;
 
@@ -272,7 +321,7 @@ static SqlExpr *parse_select_clause() {
     advance();
 
     SqlExpr *identifier = parse_expr();
-  if (is_bad(identifier)) return identifier;
+    if (is_bad(identifier)) return identifier;
 
     if (expr->as.select_clause.options_count >= capacity) {
       capacity *= 2;
@@ -287,11 +336,7 @@ static SqlExpr *parse_select_clause() {
   return expr;
 }
 
-static SqlExpr *parse_select_stmt() { // select * from ( select * from table )
-  if (!expect(TOKEN_SELECT)) {
-    return bad_expr();
-  }
-
+static SqlExpr *parse_select_stmt() {
   SqlExpr *select_clause = parse_select_clause();
   if (is_bad(select_clause)) return select_clause;
 
@@ -303,6 +348,8 @@ static SqlExpr *parse_select_stmt() { // select * from ( select * from table )
   select->as.select.clauses = malloc(sizeof(SqlExpr) * 2);
   select->as.select.clauses[0] = *select_clause;
   select->as.select.clauses[1] = *from_clause;
+
+  select->as.select.clause_count = 2;
 
   return select;
 }
@@ -348,7 +395,6 @@ static SqlExpr *parse_create_table_stmt() {
     ColumnExpr *column = malloc(sizeof(ColumnExpr));
     column->name = column_name->as.identifier.value;
     column->type = type->as.identifier.value;
-//create table test (int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x)
 
     expr->as.create_table.columns[expr->as.create_table.column_count] = *column;
     expr->as.create_table.column_count++;
@@ -399,8 +445,8 @@ ParserState *parse_ast(int debug, Token *tokens, int token_count) {
   parser = init_parser(tokens, token_count);
 
   while (!match(TOKEN_EOF)) {
-    SqlExpr *expr = parse_stmt();
-    add_expr(expr);
+  SqlExpr *expr = parse_stmt();
+  add_expr(expr);
 
     if (is_bad(expr)) {
       output_error();

@@ -51,12 +51,12 @@ int run_db(AlliumDb *allium, char *query) {
 
   return ALLIUM_SUCCESS;
 }
-#include <signal.h>
+
 int main() {
   int exitRequested = 0;
   char inp_buff[256];
 
-  int debug = 0;
+  int debug = 1;
 
   AlliumDb *allium_db = init_allium(debug);
 

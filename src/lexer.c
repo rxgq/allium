@@ -14,6 +14,9 @@ static const TokenMapEntry keywords[] = {
   {"create", TOKEN_CREATE},
   {"table", TOKEN_TABLE},
   {"drop", TOKEN_DROP},
+  {"distinct", TOKEN_DISTINCT},
+  {"top", TOKEN_TOP},
+  {"percent", TOKEN_PERCENT},
   {NULL, TOKEN_NONE},
 };
 
@@ -84,7 +87,7 @@ static Token *bad_token() {
   return init_token("", TOKEN_BAD);
 }
 
-static int is_end() {
+static inline int is_end() {
   if (lexer->current < (int)strlen(lexer->source)) {
     return 0;
   }
@@ -109,8 +112,6 @@ static Token* parse_identifier() {
 
   unsigned long size = lexer->current - start;
   char *lexeme = malloc(size + 1);
-
-
   strncpy(lexeme, lexer->source + start, size);
   lexeme[size] = '\0';
 
@@ -125,6 +126,23 @@ static Token* parse_identifier() {
   Token *token = init_token(lexeme, type);
   free(lexeme);
   
+  return token;
+}
+
+static Token *parse_numeric() {
+  int start = lexer->current;
+
+  while (!is_end() && isdigit(current())) {
+    advance();
+  }
+
+  unsigned long size = lexer->current - start;
+  char *lexeme = malloc(size + 1);
+  strncpy(lexeme, lexer->source + start, size);
+  lexeme[size] = '\0';
+
+  Token *token = init_token(lexeme, TOKEN_NUMERIC);
+
   return token;
 }
 
@@ -144,6 +162,9 @@ static Token *parse_symbol() {
 static Token *parse_token() {
   if (isalpha(current())) {
     return parse_identifier();
+  }
+  else if (isdigit(current())) {
+    return parse_numeric();
   }
 
   return parse_symbol();

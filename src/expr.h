@@ -21,6 +21,7 @@ typedef enum {
   EXPR_FROM_CLAUSE,
   EXPR_ALIAS,
   EXPR_IDENTIFIER,
+  EXPR_NUMERIC,
   EXPR_ALL_COLUMNS,
   BAD_EXPR,
 } SqlExprType;
@@ -39,6 +40,10 @@ typedef struct {
 } IdentifierExpr;
 
 typedef struct {
+  int value;
+} NumericExpr;
+
+typedef struct {
   SqlExpr *expr;
   SqlExpr *identifier;
 } AliasExpr;
@@ -48,12 +53,16 @@ typedef struct {
 } FromClause;
 
 typedef struct {
-  SqlExpr *options; // 'distinct', etc
+  int is_distinct;
+  SqlExpr *top_count;
+  int is_top_percent; // either 'top x' or 'top x percent'
+  SqlExpr *options;
   int options_count;
 } SelectClause;
 
 typedef struct {
   SqlExpr *clauses;
+  int clause_count;
 } SelectStmt;
 
 typedef struct {
@@ -85,6 +94,7 @@ struct SqlExpr {
     AllColumnsExpr all_columns;
 
     IdentifierExpr identifier;
+    NumericExpr numeric;
   } as;
 };
 
