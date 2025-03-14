@@ -35,7 +35,13 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_GREATER_THAN_EQUALS: return "greater than equals";
     case TOKEN_NOT_EQUAL: return "not equal";
     case TOKEN_IS: return "is";
+    case TOKEN_INSERT: return "insert";
+    case TOKEN_INTO: return "into";
+    case TOKEN_VALUES: return "values";
     case TOKEN_NULL: return "null";
+    case TOKEN_UPDATE: return "update";
+    case TOKEN_SET: return "set";
+    case TOKEN_DELETE: return "delete";
     case TOKEN_EOF: return "eof";
   }
 

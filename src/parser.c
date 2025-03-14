@@ -225,10 +225,9 @@ static SqlExpr *parse_primary() {
   }
   else if (token->type == TOKEN_NUMERIC) {
     advance();
-    printf("test");
 
     SqlExpr *expr = init_expr(EXPR_NUMERIC);
-    expr->as.numeric.value = 27; // temporary
+    expr->as.numeric.value = atoi(token->lexeme);
 
     return expr;
   }
@@ -336,8 +335,33 @@ static SqlExpr *parse_select_clause() {
   return expr;
 }
 
-static SqlExpr *parse_where_clause() {
+static SqlExpr *parse_not_expr() {
+  if (match(TOKEN_NOT)) {
+    advance();
+    SqlExpr *expr = parse_expr();
+    return expr;
+  }
+
+  return parse_expr(); // may be parse_primary
+}
+
+static SqlExpr *parse_and_expr() {
+  return parse_not_expr();
+}
+
+static SqlExpr *parse_or_expr() {
+  return parse_and_expr();
+}
+
+static SqlExpr *parse_where_clause() { // where not x
+  if (!expect(TOKEN_WHERE)) {
+    return bad_expr();
+  }
+
+  SqlExpr *expr = parse_or_expr();
+
   SqlExpr *where = init_expr(EXPR_WHERE_CLAUSE);
+  where->as.where_clause.condition = expr;
 
   return where;
 }

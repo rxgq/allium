@@ -56,13 +56,13 @@ int main() {
   int exitRequested = 0;
   char inp_buff[256];
 
-  int debug = 1;
+  int debug = 0;
 
   AlliumDb *allium_db = init_allium(debug);
 
   printf("allium db");
   while (!exitRequested) {
-    printf("\n\n> ");
+    printf("\n\n@user> ");
     fflush(stdout);
     
     if (fgets(inp_buff, sizeof(inp_buff), stdin) == NULL) {

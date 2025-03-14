@@ -20,6 +20,7 @@ typedef enum {
   EXPR_SELECT_CLAUSE,
   EXPR_FROM_CLAUSE,
   EXPR_WHERE_CLAUSE,
+  EXPR_BINARY,
   EXPR_ALIAS,
   EXPR_IDENTIFIER,
   EXPR_NUMERIC,
@@ -76,14 +77,20 @@ typedef struct {
   int column_count;
 } CreateTableStmt;
 
+typedef enum {
+  OP_AND,
+  OP_OR,
+  OP_NOT,
+} BinaryOp;
+
 typedef struct {
   SqlExpr *left;
-  Token *op;
+  BinaryOp op;
   SqlExpr *right;
 } BinaryExpr;
 
 typedef struct {
-  BinaryExpr *expr;
+  SqlExpr *condition;
 } WhereClause;
 
 /*
@@ -99,9 +106,11 @@ struct SqlExpr {
     
     SelectClause select_clause;
     FromClause from_clause;
+    WhereClause where_clause;
 
     AliasExpr alias;
     AllColumnsExpr all_columns;
+    BinaryExpr binary_expr;
 
     IdentifierExpr identifier;
     NumericExpr numeric;
