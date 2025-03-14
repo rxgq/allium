@@ -138,36 +138,36 @@ static inline int is_bad(SqlExpr *expr) {
   return 0;
 }
 
-static short get_num_len(int n) {
-  if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
-  if (n < 10) return 1;
-  return 1 + get_num_len(n / 10);
-}
+// static short get_num_len(int n) {
+//   if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
+//   if (n < 10) return 1;
+//   return 1 + get_num_len(n / 10);
+// }
 
 static void output_error() {
   int errTokLine = parser->error_token->line;
-  int errTokCol = 0;
+  // int errTokCol = 0;
 
   printf("line %d: ", errTokLine);
-  int prefixLen = get_num_len(errTokLine) + 5;
+  // int prefixLen = get_num_len(errTokLine) + 5;
 
-  for (int i = 0; i < parser->token_count; i++) {
-    if (parser->tokens[i].line != errTokLine) continue;
-    if (parser->tokens[i].type == TOKEN_EOF) continue;
+  // for (int i = 0; i < parser->token_count; i++) {
+  //   if (parser->tokens[i].line != errTokLine) continue;
+  //   if (parser->tokens[i].type == TOKEN_EOF) continue;
 
-    if (&parser->tokens[i] == parser->error_token) {
-      errTokCol = prefixLen;
-    }
+  //   if (&parser->tokens[i] == parser->error_token) {
+  //     errTokCol = prefixLen;
+  //   }
 
-    printf("%s ", parser->tokens[i].lexeme);
-    prefixLen += strlen(parser->tokens[i].lexeme) + 1;
-  }
-  printf("\n");
+  //   printf("%s ", parser->tokens[i].lexeme);
+  //   prefixLen += strlen(parser->tokens[i].lexeme) + 1;
+  // }
+  // printf("\n");
 
-  for (int i = 0; i < prefixLen; i++) {
-    printf(" ");
-  }
-  printf("^\n");
+  // for (int i = 0; i < prefixLen; i++) {
+  //   printf(" ");
+  // }
+  // printf("^\n");
 
   TokenType err_token_type = parser->error_token->type;
 
@@ -177,7 +177,7 @@ static void output_error() {
     parser->error_token = &parser->tokens[parser->token_count - 2];
   }
 
-  printf("  Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
+  printf("Syntax error on line %d, near '%s'\n", errTokLine, parser->error_token->lexeme);
 }
 
 static void add_expr(SqlExpr *expr) {
@@ -330,7 +330,6 @@ static SqlExpr *parse_create_table_stmt() {
   }
 
   int capacity = 1;
-  // int count = 1;
   parser->current--;
   do {
     advance();
@@ -341,9 +340,15 @@ static SqlExpr *parse_create_table_stmt() {
     SqlExpr *column_name = parse_expr();
     if (is_bad(column_name)) return column_name;
 
+    if (expr->as.create_table.column_count >= capacity) {
+      capacity *= 2;
+      expr->as.create_table.columns = realloc(expr->as.create_table.columns, capacity * sizeof(ColumnExpr));
+    }
+
     ColumnExpr *column = malloc(sizeof(ColumnExpr));
     column->name = column_name->as.identifier.value;
     column->type = type->as.identifier.value;
+//create table test (int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x, int x)
 
     expr->as.create_table.columns[expr->as.create_table.column_count] = *column;
     expr->as.create_table.column_count++;

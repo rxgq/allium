@@ -49,7 +49,7 @@ typedef struct {
 
 typedef struct {
   SqlExpr *options; // 'distinct', etc
-  unsigned int options_count;
+  int options_count;
 } SelectClause;
 
 typedef struct {
@@ -92,8 +92,8 @@ struct SqlExpr {
 ** Represents the top level data structure that holds the sql statements.
 */
 struct SqlQueryTree {
-  unsigned int statement_count;
-  unsigned int statement_capacity;
+  int statement_count;
+  int statement_capacity;
   SqlExpr* statements;
 };
 

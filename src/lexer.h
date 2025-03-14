@@ -5,11 +5,11 @@
 
 typedef struct {
   Token *tokens;
-  unsigned int token_capacity;
-  unsigned int token_count;
-  unsigned int current;
+  int token_capacity;
+  int token_count;
+  int current;
   char *source;
-  unsigned int line;
+  int line;
 } LexerState;
 
 extern LexerState *tokenize(int debug, char *source);

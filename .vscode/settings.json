@@ -3,5 +3,6 @@
     "expr.h": "c",
     "parser.h": "c",
     "table.h": "c"
-  }
+  },
+  "workbench.colorTheme": "Atom One Light"
 }

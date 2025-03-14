@@ -27,7 +27,7 @@ typedef enum {
 typedef struct {
   char *lexeme;
   TokenType type;
-  unsigned int line;
+  int line;
 } Token;
 
 typedef struct {

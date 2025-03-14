@@ -8,7 +8,7 @@
 #include "codes.h"
 
 char *read_file(char *path) {
-  FILE *fptr = fopen("source.txt", "r");
+  FILE *fptr = fopen(path, "r");
   if (!fptr) {
     perror("error opening file");
     return NULL;
@@ -51,7 +51,7 @@ int run_db(AlliumDb *allium, char *query) {
 
   return ALLIUM_SUCCESS;
 }
-
+#include <signal.h>
 int main() {
   int exitRequested = 0;
   char inp_buff[256];
@@ -79,7 +79,7 @@ int main() {
       continue;
     } 
     
-    AlliumCode result = run_db(allium_db, inp_buff);
+    run_db(allium_db, inp_buff);
   }
 
   return 0;

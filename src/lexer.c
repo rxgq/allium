@@ -29,7 +29,7 @@ static void lexer_out() {
   printf("  token count:    %d\n", lexer->token_count);
   printf("  token capacity: %d\n", lexer->token_capacity);
   printf("  lexer current:  %d\n", lexer->current);
-  printf("  source length:  %zd\n", strlen(lexer->source));
+  printf("  source length:  %lld\n", strlen(lexer->source));
   printf("\nToken List:\n");
 
   for (int i = 0; i < lexer->token_count; i++) {
@@ -85,7 +85,7 @@ static Token *bad_token() {
 }
 
 static int is_end() {
-  if (lexer->current < strlen(lexer->source)) {
+  if (lexer->current < (int)strlen(lexer->source)) {
     return 0;
   }
 

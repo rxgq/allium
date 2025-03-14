@@ -5,8 +5,8 @@
 #include "tree.h"
 
 typedef struct {
-  unsigned int current;
-  unsigned int token_count;
+  int current;
+  int token_count;
   Token *tokens;
   Token *error_token;   // the token that caused the error, null if no error
   SqlQueryTree *ast;
