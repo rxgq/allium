@@ -143,6 +143,10 @@ static AlliumCode execute_drop_table(AlliumDb *allium, SqlExpr *expr) {
   return ALLIUM_SUCCESS;
 }
 
+static inline SqlExpr *as_from(SqlExpr *expr) {
+  return expr->as.from_clause.expr;
+}
+
 static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
   SelectStmt *select = &expr->as.select;
 
@@ -154,10 +158,10 @@ static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
     }
 
     if (clause->type == EXPR_FROM_CLAUSE) {
-      if (clause->as.from_clause.expr->type == EXPR_SELECT_STMT) {
+      if (as_from(clause)->type == EXPR_SELECT_STMT) {
         return execute_select(allium, clause->as.from_clause.expr);
-      } 
-      else if (clause->as.from_clause.expr->type == EXPR_IDENTIFIER) {
+      }
+      else if (as_from(clause)->type == EXPR_IDENTIFIER) {
         char *table_name = clause->as.from_clause.expr->as.identifier.value;
         Table *table = get_table(allium->db, table_name);
         if (!table) {

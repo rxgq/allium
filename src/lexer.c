@@ -17,14 +17,33 @@ static const TokenMapEntry keywords[] = {
   {"distinct", TOKEN_DISTINCT},
   {"top", TOKEN_TOP},
   {"percent", TOKEN_PERCENT},
+  {"where", TOKEN_WHERE},
+  {"and", TOKEN_AND},
+  {"or", TOKEN_OR},
+  {"not", TOKEN_NOT},
+  {"is", TOKEN_IS},
+  {"null", TOKEN_NULL},
   {NULL, TOKEN_NONE},
 };
 
-static const TokenMapEntry symbols[] = {
+static const TokenMapEntry single_symbols[] = {
   {"*", TOKEN_STAR},
   {",", TOKEN_COMMA},
   {"(", TOKEN_LEFT_PAREN},
   {")", TOKEN_RIGHT_PAREN},
+  {";", TOKEN_SEMI_COLON},
+  {"\'", TOKEN_SINGLE_QUOTE},
+  {"=", TOKEN_SINGLE_EQUALS},
+  {">", TOKEN_GREATER_THAN},
+  {"<", TOKEN_LESS_THAN},
+  {NULL, TOKEN_NONE},
+};
+
+static const TokenMapEntry double_symbols[] = {
+  {">=", TOKEN_GREATER_THAN_EQUALS},
+  {"<=", TOKEN_LESS_THAN_EQUALS},
+  {"<>", TOKEN_NOT_EQUAL},
+  {NULL, TOKEN_NONE},
 };
 
 static void lexer_out() {
@@ -142,17 +161,31 @@ static Token *parse_numeric() {
   lexeme[size] = '\0';
 
   Token *token = init_token(lexeme, TOKEN_NUMERIC);
-
   return token;
 }
 
 static Token *parse_symbol() {
-  char symbol[] = { current(), '\0' };
+  char symbol[3] = { current(), '\0', '\0' };
+  advance();
 
-  for (int i = 0; symbols[i].value != NULL; i++) {
-    if (strcmp(symbols[i].value, symbol) == 0) {
-      advance();
-      return init_token(symbol, symbols[i].type);
+  if (!is_end()) {
+    symbol[1] = current();
+    symbol[2] = '\0';
+    advance();
+
+    for (int i = 0; double_symbols[i].value != NULL; i++) {
+      if (strcmp(double_symbols[i].value, symbol) == 0) {
+        return init_token(symbol, double_symbols[i].type);
+      }
+    }
+    
+    symbol[1] = '\0';
+    lexer->current--;
+  }
+
+  for (int i = 0; single_symbols[i].value != NULL; i++) {
+    if (strcmp(single_symbols[i].value, symbol) == 0) {
+      return init_token(symbol, single_symbols[i].type);
     }
   }
 

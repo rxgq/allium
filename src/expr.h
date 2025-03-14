@@ -19,6 +19,7 @@ typedef enum {
   EXPR_SELECT_STMT,
   EXPR_SELECT_CLAUSE,
   EXPR_FROM_CLAUSE,
+  EXPR_WHERE_CLAUSE,
   EXPR_ALIAS,
   EXPR_IDENTIFIER,
   EXPR_NUMERIC,
@@ -75,6 +76,15 @@ typedef struct {
   int column_count;
 } CreateTableStmt;
 
+typedef struct {
+  SqlExpr *left;
+  Token *op;
+  SqlExpr *right;
+} BinaryExpr;
+
+typedef struct {
+  BinaryExpr *expr;
+} WhereClause;
 
 /*
 ** Data structure for representing a single SQL statement or clause.

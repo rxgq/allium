@@ -22,6 +22,20 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_NUMERIC: return "numeric";
     case TOKEN_PERCENT: return "percent";
     case TOKEN_DISTINCT: return "distinct";
+    case TOKEN_WHERE: return "where";
+    case TOKEN_SEMI_COLON: return "semicolon";
+    case TOKEN_SINGLE_EQUALS: return "single equals";
+    case TOKEN_SINGLE_QUOTE: return "single quote";
+    case TOKEN_AND: return "and";
+    case TOKEN_OR: return "or";
+    case TOKEN_NOT: return "not";
+    case TOKEN_GREATER_THAN: return "greater than";
+    case TOKEN_LESS_THAN: return "less than";
+    case TOKEN_LESS_THAN_EQUALS: return "less than equals";
+    case TOKEN_GREATER_THAN_EQUALS: return "greater than equals";
+    case TOKEN_NOT_EQUAL: return "not equal";
+    case TOKEN_IS: return "is";
+    case TOKEN_NULL: return "null";
     case TOKEN_EOF: return "eof";
   }
 

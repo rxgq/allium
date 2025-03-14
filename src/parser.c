@@ -336,6 +336,12 @@ static SqlExpr *parse_select_clause() {
   return expr;
 }
 
+static SqlExpr *parse_where_clause() {
+  SqlExpr *where = init_expr(EXPR_WHERE_CLAUSE);
+
+  return where;
+}
+
 static SqlExpr *parse_select_stmt() {
   SqlExpr *select_clause = parse_select_clause();
   if (is_bad(select_clause)) return select_clause;
@@ -436,6 +442,8 @@ static SqlExpr *parse_stmt() {
       return parse_create_table_stmt();
     case TOKEN_DROP:
       return parse_drop_table_stmt();
+    case TOKEN_WHERE:
+      return parse_where_clause();
     default:
       return bad_expr();
   }
