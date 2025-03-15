@@ -1,48 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <ctype.h>
+#include <string.h>
 
 #include "lexer.h"
 #include "parser.h"
 #include "db.h"
 #include "codes.h"
-
-char *read_file(char *path) {
-  FILE *fptr = fopen(path, "r");
-  if (!fptr) {
-    perror("error opening file");
-    return NULL;
-  }
-
-  fseek(fptr, 0, SEEK_END);
-  unsigned long sz = ftell(fptr);
-  rewind(fptr);
-
-  char *buff = malloc(sz + 1);
-  size_t read_size = fread(buff, 1, sz, fptr);
-  buff[sz] = '\0';
-
-  if (read_size != sz) {
-    buff[read_size] = '\0'; 
-  }
-
-  fclose(fptr);
-
-  return buff;
-}
+#include "file.h"
 
 int run_db(AlliumDb *allium, char *query) {
   LexerState *lexer = tokenize(allium->debug, query);
-
   ParserState *parser = parse_ast(allium->debug, lexer->tokens, lexer->token_count);
   free_lexer(lexer);
 
   if (parser->error_token) {
+    free_parser(parser);
     return ALLIUM_PARSER_FAIL;
   }
 
-  AlliumCode result = execute(allium, parser->ast);
+  AlliumCode result = execute_query(allium, parser->ast);
   if (result != ALLIUM_SUCCESS) {
+    free_parser(parser);
     return ALLIUM_DB_FAIL;
   }
 
@@ -52,35 +32,64 @@ int run_db(AlliumDb *allium, char *query) {
   return ALLIUM_SUCCESS;
 }
 
+void execute_file_query(AlliumDb *allium, char *filename) {
+  char *content = read_file(filename);
+  if (!content) {
+    return;
+  }
+
+  char *query = strtok(content, ";");
+  while (query) {
+    while (isspace(*query)) query++;
+
+    if (*query) {
+      printf("\n\nexecuting: %s\n", query);
+      run_db(allium, query);
+    }
+    query = strtok(NULL, ";");
+  }
+
+  free(content);
+}
+
 int main() {
-  int exitRequested = 0;
-  char inp_buff[256];
-
   int debug = 0;
+  AlliumDb *allium = init_allium(debug);
 
-  AlliumDb *allium_db = init_allium(debug);
-
-  printf("allium db");
-  while (!exitRequested) {
+  char inp_buff[256];
+  while (1) {
     printf("\n\n@user> ");
     fflush(stdout);
     
     if (fgets(inp_buff, sizeof(inp_buff), stdin) == NULL) {
       break;
     }
-
     size_t len = strlen(inp_buff);
     if (len > 0 && inp_buff[len - 1] == '\n') {
       inp_buff[len - 1] = '\0';
     }
 
     if (strcmp(inp_buff, "quit") == 0) {
-      exitRequested = 1;
+      break;
+    } 
+
+    if (strncmp(inp_buff, ":read ", 6) == 0) {
+      char *filename = inp_buff + 6;
+      while (*filename == ' ') filename++;
+
+      if (!has_sql_extension(filename)) {
+        printf("only .sql files are allowed.\n");
+      } else {
+        execute_file_query(allium, filename);
+      }
+
       continue;
     } 
-    
-    run_db(allium_db, inp_buff);
+
+    run_db(allium, inp_buff);
   }
+
+  free_allium(allium);
 
   return 0;
 }

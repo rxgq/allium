@@ -76,6 +76,15 @@ static void free_table(Table *table) {
   free(table);
 }
 
+static void free_database(Database *db) {
+  if (!db) return;
+
+  for (int i = 0; i < db->table_count; i++) {
+    free_table(&db->tables[i]);
+  }
+  free(db);
+}
+
 static AlliumCode register_table(AlliumDb *allium, Table *table) {
   if (strlen(table->name) > 255) {
     set_err(allium, "table name too long, must be < 256 characters ");
@@ -206,7 +215,13 @@ AlliumCode execute_statement(AlliumDb *allium, SqlExpr *expr) {
   }
 }
 
-AlliumCode execute(AlliumDb *allium, SqlQueryTree *ast) {
+void free_allium(AlliumDb *allium) {
+  free_database(allium->db);
+  free(allium->err);
+  free(allium);
+}
+
+AlliumCode execute_query(AlliumDb *allium, SqlQueryTree *ast) {
   for (int i = 0; i < ast->statement_count; i++) {
     AlliumCode code = execute_statement(allium, &ast->statements[i]);
 

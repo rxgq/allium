@@ -1,0 +1,1 @@
+select top 10 percent * from (select * from test); select * from test

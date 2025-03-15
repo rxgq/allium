@@ -18,7 +18,8 @@ typedef struct {
   char *err;
 } AlliumDb;
 
-extern AlliumCode execute(AlliumDb *allium, SqlQueryTree *ast);
+extern AlliumCode execute_query(AlliumDb *allium, SqlQueryTree *ast);
 extern AlliumDb *init_allium(int debug);
+extern void free_allium(AlliumDb *allium);
 
 #endif
