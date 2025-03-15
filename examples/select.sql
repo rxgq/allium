@@ -1,0 +1,1 @@
+select top 10 percent x as xAlias, y as yAlias from test

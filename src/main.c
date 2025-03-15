@@ -53,7 +53,7 @@ void execute_file_query(AlliumDb *allium, char *filename) {
 }
 
 int main() {
-  int debug = 0;
+  int debug = 1;
   AlliumDb *allium = init_allium(debug);
 
   char inp_buff[256];
@@ -79,11 +79,10 @@ int main() {
 
       if (!has_sql_extension(filename)) {
         printf("only .sql files are allowed.\n");
-      } else {
-        execute_file_query(allium, filename);
+        continue;
       }
 
-      continue;
+      execute_file_query(allium, filename);
     } 
 
     run_db(allium, inp_buff);

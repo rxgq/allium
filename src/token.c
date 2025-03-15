@@ -13,6 +13,7 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_NONE: return "none";
     case TOKEN_AS: return "as";
     case TOKEN_COMMA: return "comma";
+    case TOKEN_PERCENT_SIGN: return "percent sign";
     case TOKEN_CREATE: return "create";
     case TOKEN_LEFT_PAREN: return "left parenthesis";
     case TOKEN_RIGHT_PAREN: return "right parenthesis";
@@ -42,6 +43,15 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_UPDATE: return "update";
     case TOKEN_SET: return "set";
     case TOKEN_DELETE: return "delete";
+    case TOKEN_GROUP: return "group";
+    case TOKEN_ORDER: return "order";
+    case TOKEN_BY: return "by";
+    case TOKEN_HAVING: return "having";
+    case TOKEN_LIKE: return "like";
+    case TOKEN_IN: return "in";
+    case TOKEN_ALTER: return "alter";
+    case TOKEN_ADD: return "add";
+    case TOKEN_COLUMN: return "column";
     case TOKEN_EOF: return "eof";
   }
 

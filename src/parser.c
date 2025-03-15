@@ -16,6 +16,16 @@ void print_depth(int depth) {
   }
 }
 
+char *op_to_string(Op op) {
+  switch (op) {
+    case OP_AND: return "AND";
+    case OP_OR: return "OR";
+    case OP_NOT: return "NOT";
+  }
+
+  return "UNKNOWN OP";
+}
+
 void print_expr(SqlExpr *expr, int depth) {
   print_depth(depth);
 
@@ -48,7 +58,7 @@ void print_expr(SqlExpr *expr, int depth) {
       return;
 
     case EXPR_NUMERIC:
-      printf("NUMERIC %d\n", expr->as.numeric.value);
+      printf("NUMERIC: %d\n", expr->as.numeric.value);
       return;
 
     case EXPR_FROM_CLAUSE:
@@ -67,7 +77,7 @@ void print_expr(SqlExpr *expr, int depth) {
       return;
 
     case EXPR_CREATE_TABLE_STMT:
-      printf("CREATE TABLE\n");
+      printf("CREATE TABLE:\n");
       for (int i = 0; i < expr->as.create_table.column_count; i++) {
         print_depth(depth + 1);
         printf("%s %s\n", expr->as.create_table.columns[i].type, expr->as.create_table.columns[i].name);
@@ -75,8 +85,24 @@ void print_expr(SqlExpr *expr, int depth) {
       return;
 
     case EXPR_DROP_TABLE_STMT:
-      printf("DROP TABLE\n");
+      printf("DROP TABLE:\n");
       print_expr(expr->as.drop_table.name, depth + 1);
+      return;
+
+    case EXPR_WHERE_CLAUSE:
+      printf("WHERE:\n");
+      print_expr(expr->as.where_clause.condition, depth + 1);
+      return;
+
+    case EXPR_UNARY:
+      printf("UNARY %s:\n", op_to_string(expr->as.unary_expr.op));
+      print_expr(expr->as.unary_expr.expr, depth + 1);
+      return;
+
+    case EXPR_BINARY:
+      printf("BINARY %s:\n", op_to_string(expr->as.binary_expr.op));
+      print_expr(expr->as.binary_expr.left, depth + 1);
+      print_expr(expr->as.binary_expr.right, depth + 1);
       return;
 
     case BAD_EXPR:
@@ -338,19 +364,59 @@ static SqlExpr *parse_select_clause() {
 static SqlExpr *parse_not_expr() {
   if (match(TOKEN_NOT)) {
     advance();
-    SqlExpr *expr = parse_expr();
+    SqlExpr *unary_expr = parse_not_expr();
+    if (is_bad(unary_expr)) return unary_expr;
+
+    SqlExpr *expr = init_expr(EXPR_UNARY);
+    expr->as.unary_expr.expr = unary_expr;
+    expr->as.unary_expr.op = OP_NOT;
+
     return expr;
   }
 
-  return parse_expr(); // may be parse_primary
+  return parse_primary();
 }
 
 static SqlExpr *parse_and_expr() {
-  return parse_not_expr();
+  SqlExpr *left = parse_not_expr();
+  if (is_bad(left)) return left;
+
+  if (match(TOKEN_AND)) {
+    advance();
+
+    SqlExpr *right = parse_and_expr();
+    if (is_bad(right)) return right;
+
+    SqlExpr *expr = init_expr(EXPR_BINARY);
+    expr->as.binary_expr.left = left;
+    expr->as.binary_expr.op = OP_AND;
+    expr->as.binary_expr.right = right;
+
+    return expr;
+  }
+
+  return left;
 }
 
 static SqlExpr *parse_or_expr() {
-  return parse_and_expr();
+  SqlExpr *left = parse_and_expr();
+  if (is_bad(left)) return left;
+
+  if (match(TOKEN_OR)) {
+    advance();
+
+    SqlExpr *right = parse_or_expr();
+    if (is_bad(right)) return right;
+    
+    SqlExpr *expr = init_expr(EXPR_BINARY);
+    expr->as.binary_expr.left = left;
+    expr->as.binary_expr.op = OP_OR;
+    expr->as.binary_expr.right = right;
+
+    return expr;
+  }
+
+  return left;
 }
 
 static SqlExpr *parse_where_clause() { // where not x
@@ -411,11 +477,11 @@ static SqlExpr *parse_create_table_stmt() {
   do {
     advance();
 
-    SqlExpr *type = parse_expr();
-    if (is_bad(type)) return type;
-
     SqlExpr *column_name = parse_expr();
     if (is_bad(column_name)) return column_name;
+
+    SqlExpr *type = parse_expr();
+    if (is_bad(type)) return type;
 
     if (expr->as.create_table.column_count >= capacity) {
       capacity *= 2;

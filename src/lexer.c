@@ -25,6 +25,15 @@ static const TokenMapEntry keywords[] = {
   {"into", TOKEN_INTO},
   {"values", TOKEN_VALUES},
   {"delete", TOKEN_DELETE},
+  {"group", TOKEN_GROUP},
+  {"by", TOKEN_BY},
+  {"order", TOKEN_ORDER},
+  {"having", TOKEN_HAVING},
+  {"like", TOKEN_LIKE},
+  {"in", TOKEN_IN},
+  {"alter", TOKEN_ALTER},
+  {"add", TOKEN_ADD},
+  {"column", TOKEN_COLUMN},
   {NULL, TOKEN_NONE},
 };
 
@@ -38,6 +47,7 @@ static const TokenMapEntry single_symbols[] = {
   {"=", TOKEN_SINGLE_EQUALS},
   {">", TOKEN_GREATER_THAN},
   {"<", TOKEN_LESS_THAN},
+  {"%", TOKEN_PERCENT_SIGN},
   {NULL, TOKEN_NONE},
 };
 

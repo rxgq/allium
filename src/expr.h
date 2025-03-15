@@ -6,11 +6,6 @@
 #include "tree.h"
 
 /*
-** Forward definitions of expression structs
-*/
-// typedef struct SqlExpr SqlExpr;
-
-/*
 ** Enum to represent the different types of valid SQL expressions
 */
 typedef enum {
@@ -21,6 +16,7 @@ typedef enum {
   EXPR_FROM_CLAUSE,
   EXPR_WHERE_CLAUSE,
   EXPR_BINARY,
+  EXPR_UNARY,
   EXPR_ALIAS,
   EXPR_IDENTIFIER,
   EXPR_NUMERIC,
@@ -81,13 +77,18 @@ typedef enum {
   OP_AND,
   OP_OR,
   OP_NOT,
-} BinaryOp;
+} Op;
 
 typedef struct {
   SqlExpr *left;
-  BinaryOp op;
+  Op op;
   SqlExpr *right;
 } BinaryExpr;
+
+typedef struct {
+  SqlExpr *expr;
+  Op op;
+} UnaryExpr;
 
 typedef struct {
   SqlExpr *condition;
@@ -111,6 +112,7 @@ struct SqlExpr {
     AliasExpr alias;
     AllColumnsExpr all_columns;
     BinaryExpr binary_expr;
+    UnaryExpr unary_expr;
 
     IdentifierExpr identifier;
     NumericExpr numeric;
