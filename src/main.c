@@ -83,6 +83,7 @@ int main() {
       }
 
       execute_file_query(allium, filename);
+      continue;
     } 
 
     run_db(allium, inp_buff);

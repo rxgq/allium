@@ -7,7 +7,7 @@
 char *read_file(const char *path) {
   FILE *fptr = fopen(path, "r");
   if (!fptr) {
-    printf("Invalid file path.\n");
+    printf("invalid file path.\n");
     return NULL;
   }
 

@@ -31,7 +31,7 @@ void print_expr(SqlExpr *expr, int depth) {
 
   switch (expr->type) {
     case EXPR_SELECT_STMT:
-      printf("SELECT\n");
+      printf("SELECT:\n");
       for (int i = 0; i < 2; i++) {
         print_expr(&expr->as.select.clauses[i], depth + 1);
       }
@@ -46,11 +46,36 @@ void print_expr(SqlExpr *expr, int depth) {
       print_depth(depth + 1);
       printf("DISTINCT: %s\n", expr->as.select_clause.is_distinct ? "true" : "false");
 
-      print_depth(depth + 1);
       if (expr->as.select_clause.top_count) {
+        print_depth(depth + 1);
         printf("TOP%s:\n", expr->as.select_clause.is_top_percent ? " PERCENT" : "");
         print_expr(expr->as.select_clause.top_count, depth + 2);
       }
+      return;
+
+    case EXPR_INSERT_STMT:
+      printf("INSERT INTO:\n");
+      print_expr(expr->as.insert.table_name, depth + 1);
+
+      print_depth(depth + 1);
+      printf("COLUMNS:\n");
+      for (int i = 0; i < expr->as.insert.column_count; i++) {
+        print_depth(depth);
+        print_expr(expr->as.insert.column_names[i], depth + 1);
+      }
+
+      print_depth(depth + 1);
+      printf("VALUES:\n");
+      for (int i = 0; i < expr->as.insert.row_count; i++) {
+        print_depth(depth + 2);
+        printf("VALUES (%d):\n", i);
+
+        for (int j = 0; j < expr->as.insert.rows[i]->value_count; j++) {
+          print_depth(depth + 1);
+          print_expr(expr->as.insert.rows[i]->values[j], depth + 1);
+        }
+      }
+
       return;
 
     case EXPR_IDENTIFIER:
@@ -522,6 +547,89 @@ static SqlExpr *parse_drop_table_stmt() {
   return expr;
 }
 
+static SqlExpr *parse_insert_into_stmt() {
+  if (!expect(TOKEN_INSERT)) {
+    return bad_expr();
+  }
+
+  if (!expect(TOKEN_INTO)) {
+    return bad_expr();
+  }
+
+  SqlExpr *table_name = parse_primary();
+  if (is_bad(table_name)) return table_name;
+
+  if (!expect(TOKEN_LEFT_PAREN)) {
+    return bad_expr();
+  }
+
+  SqlExpr *expr = init_expr(EXPR_INSERT_STMT);
+  expr->as.insert.table_name = table_name;
+  expr->as.insert.column_names = malloc(sizeof(IdentifierExpr));
+  expr->as.insert.column_count = 0;
+
+  int capacity = 1;
+  parser->current--;
+  do {
+    advance();
+
+    if (expr->as.insert.column_count >= capacity) {
+      capacity *= 2;
+      expr->as.insert.column_names = realloc(expr->as.insert.column_names, capacity * sizeof(IdentifierExpr));
+    }
+
+    SqlExpr *column_name = parse_primary();
+    if (is_bad(column_name)) return column_name;
+
+    expr->as.insert.column_names[expr->as.insert.column_count++] = column_name;
+
+  } while (match(TOKEN_COMMA));
+
+
+  if (!expect(TOKEN_RIGHT_PAREN)) {
+    return bad_expr();
+  }
+
+  if (!expect(TOKEN_VALUES)) {
+    return bad_expr();
+  }
+
+  if (!expect(TOKEN_LEFT_PAREN)) {
+    return bad_expr();
+  }
+
+  capacity = 1;
+  parser->current--;
+
+  expr->as.insert.rows = malloc(sizeof(SqlExpr));
+
+  expr->as.insert.rows[0] = malloc(sizeof(SqlExpr));
+  expr->as.insert.row_count = 1;
+
+  expr->as.insert.rows[0]->values = malloc(sizeof(SqlExpr));
+  expr->as.insert.rows[0]->value_count = 0;
+
+  do {
+    advance();
+
+    if (expr->as.insert.rows[0]->value_count >= capacity) {
+      capacity *= 2;
+      expr->as.insert.rows[0]->values = realloc(expr->as.insert.rows[0]->values, capacity * sizeof(SqlExpr));
+    }
+
+    SqlExpr *value = parse_primary();
+    if (is_bad(value)) return value;
+
+    expr->as.insert.rows[0]->values[expr->as.insert.rows[0]->value_count++] = value;
+  } while (match(TOKEN_COMMA));
+
+  if (!expect(TOKEN_RIGHT_PAREN)) {
+    return bad_expr();
+  }
+
+  return expr;
+}
+
 static SqlExpr *parse_stmt() {
   TokenType type = current()->type;
 
@@ -534,6 +642,8 @@ static SqlExpr *parse_stmt() {
       return parse_drop_table_stmt();
     case TOKEN_WHERE:
       return parse_where_clause();
+    case TOKEN_INSERT:
+      return parse_insert_into_stmt();
     default:
       return bad_expr();
   }
@@ -555,4 +665,4 @@ ParserState *parse_ast(int debug, Token *tokens, int token_count) {
   if (debug) parser_out(parser);
 
   return parser;
-}
+} 

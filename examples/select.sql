@@ -1,1 +1,1 @@
-select top 10 percent x as xAlias, y as yAlias from test
+select distinct top 10 percent x as xAlias, y as yAlias from test
