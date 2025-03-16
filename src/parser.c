@@ -65,7 +65,7 @@ void print_expr(SqlExpr *expr, int depth) {
       }
 
       print_depth(depth + 1);
-      printf("VALUES:\n");
+      printf("VALUES (%d):\n", expr->as.insert.row_count);
       for (int i = 0; i < expr->as.insert.row_count; i++) {
         print_depth(depth + 2);
         printf("VALUES (%d):\n", i);
@@ -594,38 +594,46 @@ static SqlExpr *parse_insert_into_stmt() {
     return bad_expr();
   }
 
-  if (!expect(TOKEN_LEFT_PAREN)) {
-    return bad_expr();
-  }
-
-  capacity = 1;
-  parser->current--;
-
+  int row_capacity = 1;
+  expr->as.insert.row_count = 0;
   expr->as.insert.rows = malloc(sizeof(SqlExpr));
 
-  expr->as.insert.rows[0] = malloc(sizeof(SqlExpr));
-  expr->as.insert.row_count = 1;
-
-  expr->as.insert.rows[0]->values = malloc(sizeof(SqlExpr));
-  expr->as.insert.rows[0]->value_count = 0;
-
+  parser->current--;
   do {
     advance();
 
-    if (expr->as.insert.rows[0]->value_count >= capacity) {
-      capacity *= 2;
-      expr->as.insert.rows[0]->values = realloc(expr->as.insert.rows[0]->values, capacity * sizeof(SqlExpr));
+    if (!expect(TOKEN_LEFT_PAREN)) { // TODO! realloc for rows
+      return bad_expr();
     }
 
-    SqlExpr *value = parse_primary();
-    if (is_bad(value)) return value;
+    expr->as.insert.rows[expr->as.insert.row_count] = malloc(sizeof(SqlExpr));
 
-    expr->as.insert.rows[0]->values[expr->as.insert.rows[0]->value_count++] = value;
+    expr->as.insert.rows[expr->as.insert.row_count]->values = malloc(sizeof(SqlExpr));
+    expr->as.insert.rows[expr->as.insert.row_count]->value_count = 0;
+
+    int value_capacity = 1;
+    parser->current--;
+    do {
+      advance();
+
+      if (expr->as.insert.rows[expr->as.insert.row_count]->value_count >= value_capacity) {
+        value_capacity *= 2;
+        expr->as.insert.rows[expr->as.insert.row_count]->values = realloc(expr->as.insert.rows[expr->as.insert.row_count]->values, value_capacity * sizeof(SqlExpr));
+      }
+
+      SqlExpr *value = parse_primary();
+      if (is_bad(value)) return value;
+
+      expr->as.insert.rows[expr->as.insert.row_count]->values[expr->as.insert.rows[expr->as.insert.row_count]->value_count++] = value;
+    } while (match(TOKEN_COMMA));
+
+    if (!expect(TOKEN_RIGHT_PAREN)) {
+      return bad_expr();
+    }
+
+    expr->as.insert.row_count++;
+    
   } while (match(TOKEN_COMMA));
-
-  if (!expect(TOKEN_RIGHT_PAREN)) {
-    return bad_expr();
-  }
 
   return expr;
 }
