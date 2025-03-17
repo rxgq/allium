@@ -146,5 +146,6 @@ struct SqlQueryTree {
 
 extern SqlExpr *init_expr(SqlExprType type);
 extern SqlQueryTree *init_sql_tree();
+extern char *expr_type_to_str(SqlExprType type);
 
 #endif

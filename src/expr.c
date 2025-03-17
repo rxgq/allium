@@ -19,3 +19,23 @@ SqlQueryTree *init_sql_tree() {
 
   return tree;
 }
+
+char *expr_type_to_str(SqlExprType type) {
+  switch (type) {
+    case EXPR_CREATE_TABLE_STMT: return "create table";
+    case EXPR_DROP_TABLE_STMT: return "drop table";
+    case EXPR_SELECT_STMT: return "select";
+    case EXPR_SELECT_CLAUSE: return "select clause";
+    case EXPR_FROM_CLAUSE: return "from clause";
+    case EXPR_WHERE_CLAUSE: return "where clause";
+    case EXPR_INSERT_STMT: return "insert into";
+    case EXPR_BINARY: return "binary expr";
+    case EXPR_UNARY: return "unary expr";
+    case EXPR_ALIAS: return "alias";
+    case EXPR_IDENTIFIER: return "identifier";
+    case EXPR_NUMERIC: return "numeric";
+    case EXPR_ALL_COLUMNS: return "all columns";
+    case BAD_EXPR: return "bad expr";
+    default: return "unknown expression type";
+  };
+}

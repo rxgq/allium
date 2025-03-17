@@ -52,6 +52,12 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_ALTER: return "alter";
     case TOKEN_ADD: return "add";
     case TOKEN_COLUMN: return "column";
+    case TOKEN_STRING: return "string";
+    case TOKEN_INT: return "int";
+    case TOKEN_VARCHAR: return "varchar";
+    case TOKEN_PLUS: return "+";
+    case TOKEN_MINUS: return "-";
+    case TOKEN_SLASH: return "/";
     case TOKEN_EOF: return "eof";
   }
 

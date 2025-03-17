@@ -34,6 +34,8 @@ static const TokenMapEntry keywords[] = {
   {"alter", TOKEN_ALTER},
   {"add", TOKEN_ADD},
   {"column", TOKEN_COLUMN},
+  {"int", TOKEN_INT},
+  {"varchar", TOKEN_VARCHAR},
   {NULL, TOKEN_NONE},
 };
 
@@ -48,6 +50,9 @@ static const TokenMapEntry single_symbols[] = {
   {">", TOKEN_GREATER_THAN},
   {"<", TOKEN_LESS_THAN},
   {"%", TOKEN_PERCENT_SIGN},
+  {"+", TOKEN_PLUS},
+  {"-", TOKEN_MINUS},
+  {"/", TOKEN_SLASH},
   {NULL, TOKEN_NONE},
 };
 
@@ -116,8 +121,13 @@ static void add_token(LexerState *lexer, Token *token) {
   lexer->token_count++;
 }
 
+static inline char current(LexerState *lexer) {
+  return lexer->source[lexer->current];
+}
+
 static Token *bad_token(LexerState *lexer) {
-  return init_token(lexer, "", TOKEN_BAD);
+  char val[2] = { current(lexer), '\0' };
+  return init_token(lexer, val, TOKEN_BAD);
 }
 
 static inline int is_end(LexerState *lexer) {
@@ -130,10 +140,6 @@ static inline int is_end(LexerState *lexer) {
 
 static inline void advance(LexerState *lexer) {
   lexer->current++;
-}
-
-static inline char current(LexerState *lexer) {
-  return lexer->source[lexer->current];
 }
 
 static Token* parse_identifier(LexerState *lexer) {
@@ -178,6 +184,25 @@ static Token *parse_numeric(LexerState *lexer) {
   return token;
 }
 
+static Token *parse_string(LexerState *lexer) {
+  advance(lexer);
+
+  int start = lexer->current;
+  while (!is_end(lexer) && current(lexer) != '\'') {
+    advance(lexer);
+  }
+
+  unsigned long size = lexer->current - start;
+  char *lexeme = malloc(size + 1);
+  strncpy(lexeme, lexer->source + start, size);
+  lexeme[size] = '\0';
+
+  advance(lexer);
+
+  Token *token = init_token(lexer, lexeme, TOKEN_STRING);
+  return token;
+}
+
 static Token *parse_symbol(LexerState *lexer) {
   char symbol[3] = { current(lexer), '\0', '\0' };
   advance(lexer);
@@ -213,6 +238,9 @@ static Token *parse_token(LexerState *lexer) {
   else if (isdigit(current(lexer))) {
     return parse_numeric(lexer);
   }
+  else if (current(lexer) == '\'') {
+    return parse_string(lexer);
+  }
 
   return parse_symbol(lexer);
 }
@@ -226,14 +254,22 @@ LexerState *tokenize(int debug, char *source) {
 
   while (!is_end(lexer)) {
     while (!is_end(lexer) && isspace(current(lexer))) {
-      if (current(lexer) == '\n') lexer->line++;
-      advance(lexer);
+        if (current(lexer) == '\n') lexer->line++;
+        advance(lexer);
     }
     if (is_end(lexer)) break;
-    
+
+    if (current(lexer) == '-' && lexer->source[lexer->current + 1] == '-') {
+        while (!is_end(lexer) && current(lexer) != '\n') {
+            advance(lexer);
+        }
+        continue;
+    }
+
     Token *token = parse_token(lexer);
     add_token(lexer, token);
-  }
+}
+
 
   add_token(lexer, init_token(lexer, "EOF", TOKEN_EOF));
 

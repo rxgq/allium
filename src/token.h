@@ -47,9 +47,17 @@ typedef enum {
   TOKEN_NOT_EQUAL,
   TOKEN_PERCENT_SIGN,
 
+  TOKEN_PLUS,
+  TOKEN_MINUS,
+  TOKEN_SLASH,
+
   TOKEN_IDENTIFIER,
   TOKEN_NUMERIC,
+  TOKEN_STRING,
   TOKEN_BAD,
+
+  TOKEN_INT,
+  TOKEN_VARCHAR,
 
   // the last token in the parsed list
   TOKEN_EOF,

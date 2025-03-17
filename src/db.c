@@ -38,7 +38,7 @@ AlliumDb *init_allium(int debug) {
 static AlliumCode stmt_fail(AlliumDb *allium, SqlExpr *expr) {
   if (!allium->debug) return ALLIUM_DB_FAIL;
 
-  printf("unknown statement type: %d", expr->type);
+  printf("ALLIUM_DB: unknown statement type: '%s'\n", expr_type_to_str(expr->type));
   return ALLIUM_DB_FAIL;
 }
 
@@ -199,6 +199,12 @@ static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
   return ALLIUM_SUCCESS;
 }
 
+static AlliumCode execute_insert_into(AlliumDb *db, SqlExpr *expr) {
+
+
+  return ALLIUM_SUCCESS;
+}
+
 AlliumCode execute_statement(AlliumDb *allium, SqlExpr *expr) {
   switch (expr->type) {
     case EXPR_CREATE_TABLE_STMT:
@@ -209,8 +215,11 @@ AlliumCode execute_statement(AlliumDb *allium, SqlExpr *expr) {
 
     case EXPR_DROP_TABLE_STMT:
       return execute_drop_table(allium, expr);
+
+    case EXPR_INSERT_STMT:
+      return execute_insert_into(allium, expr);
       
-    default:  
+    default:
       return stmt_fail(allium, expr);
   }
 }
