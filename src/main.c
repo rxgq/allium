@@ -26,7 +26,6 @@ int run_db(AlliumDb *allium, char *query) {
     return ALLIUM_DB_FAIL;
   }
 
-  printf("\nquery completed");
   free_parser(parser);
 
   return ALLIUM_SUCCESS;

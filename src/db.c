@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "expr.h"
 #include "db.h"
@@ -71,6 +72,11 @@ static void set_err(AlliumDb *db, const char *fmt, ...) {
   db->err = strdup(buffer);
 }
 
+static AlliumCode query_message_success(char *message) {
+  printf("query: %s", message);
+  return ALLIUM_SUCCESS;
+}
+
 static void free_table(Table *table) {
   if (!table) return;
   free(table);
@@ -122,8 +128,7 @@ static AlliumCode execute_create_table(AlliumDb *allium, SqlExpr *expr) {
   AlliumCode code = register_table(allium, table);
   if (is_err(code)) return code;
   
-  printf("create table"); // standardize
-  return ALLIUM_SUCCESS;
+  return query_message_success("CREATE TABLE");
 }
 
 static AlliumCode execute_drop_table(AlliumDb *allium, SqlExpr *expr) {
@@ -149,7 +154,7 @@ static AlliumCode execute_drop_table(AlliumDb *allium, SqlExpr *expr) {
 
   allium->db->table_count--;
 
-  return ALLIUM_SUCCESS;
+  return query_message_success("DROP TABLE");
 }
 
 static inline SqlExpr *as_from(SqlExpr *expr) {
@@ -196,13 +201,13 @@ static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
     }
   }
 
-  return ALLIUM_SUCCESS;
+  return query_message_success("SELECT");
 }
 
 static AlliumCode execute_insert_into(AlliumDb *db, SqlExpr *expr) {
 
 
-  return ALLIUM_SUCCESS;
+  return query_message_success("INSERT INTO");
 }
 
 AlliumCode execute_statement(AlliumDb *allium, SqlExpr *expr) {
@@ -231,6 +236,8 @@ void free_allium(AlliumDb *allium) {
 }
 
 AlliumCode execute_query(AlliumDb *allium, SqlQueryTree *ast) {
+  clock_t before = clock();
+
   for (int i = 0; i < ast->statement_count; i++) {
     AlliumCode code = execute_statement(allium, &ast->statements[i]);
 
@@ -239,6 +246,12 @@ AlliumCode execute_query(AlliumDb *allium, SqlQueryTree *ast) {
       return ALLIUM_DB_FAIL;
     }
   }
+
+  clock_t difference = clock() - before;
+  double time_taken = (double)difference / CLOCKS_PER_SEC;
+
+  printf("\nquery completed in %.3fs\n", time_taken);
+
 
   return ALLIUM_SUCCESS;
 }

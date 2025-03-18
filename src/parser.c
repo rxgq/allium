@@ -173,8 +173,7 @@ static inline void advance() {
 }
 
 static inline int match(TokenType type) {
-  int result = current()->type == type ? 1 : 0;
-  return result;
+  return current()->type == type ? 1 : 0;
 }
 
 static int expect(TokenType type) {
@@ -186,11 +185,8 @@ static int expect(TokenType type) {
   return 0;
 }
 
-// sets the previous token as the error token
 static inline void parser_error() {
-  // parser->current--;
   parser->error_token = current();
-  // advance();
 }
 
 static inline SqlExpr *bad_expr() {
@@ -199,8 +195,7 @@ static inline SqlExpr *bad_expr() {
 }
 
 static inline int is_bad(SqlExpr *expr) {
-  if (expr->type == BAD_EXPR) return 1;
-  return 0;
+  return expr->type == BAD_EXPR;
 }
 
 // static short get_num_len(int n) {
@@ -279,6 +274,22 @@ static SqlExpr *parse_primary() {
 
     SqlExpr *expr = init_expr(EXPR_NUMERIC);
     expr->as.numeric.value = atoi(token->lexeme);
+
+    return expr;
+  }
+  else if (token->type == TOKEN_INT) {
+    advance();
+
+    SqlExpr *expr = init_expr(EXPR_IDENTIFIER);
+    expr->as.identifier.value = strdup(token->lexeme);
+
+    return expr;
+  }
+  else if (token->type == TOKEN_STRING) {
+    advance();
+
+    SqlExpr *expr = init_expr(EXPR_IDENTIFIER);
+    expr->as.identifier.value = strdup(token->lexeme);
 
     return expr;
   }
