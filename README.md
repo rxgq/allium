@@ -11,6 +11,9 @@ Allium is a SQL-specification compliant database management system (DBMS) writte
 #### Statements
 - [x] Create Table
 - [x] Drop Table
+- [ ] Alter Table
+- [ ] Create Database
+- [ ] Drop Database
 
 #### Constraints
 - [ ] Not Null
@@ -22,6 +25,9 @@ Allium is a SQL-specification compliant database management system (DBMS) writte
 - [ ] Insert
 - [ ] Update
 - [ ] Delete
+
+#### Aggregates
+- [ ] Sum, Min, Max, Avg, Count 
 
 
 <br/>
