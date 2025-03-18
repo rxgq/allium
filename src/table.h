@@ -14,7 +14,7 @@ typedef enum {
 } ColumnType;
 
 typedef struct {
-  void *values[MAX_COLUMNS];
+  void *values;
 } TableRow;
 
 typedef struct {

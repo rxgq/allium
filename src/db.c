@@ -277,6 +277,11 @@ static AlliumCode execute_insert_into(AlliumDb *allium, SqlExpr *expr) {
 
   for (int i = 0; i < insert->row_count; i++) {
     TableRow *row = init_table_row(insert->rows[i]);
+    
+    // for (int i = 0; i < values->value_count; i++) {
+    //   row->values[i] = values->values[i];
+    // }
+
     table->rows[table->row_count++] = *row;
   }
 

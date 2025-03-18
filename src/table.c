@@ -18,12 +18,9 @@ Table *init_table(const char *name) {
   return table;
 }
 
-TableRow *init_table_row(InsertValues *values) {
+TableRow *init_table_row(Table *table, InsertValues *values) {
   TableRow *row = malloc(sizeof(TableRow));
-
-  for (int i = 0; i < values->value_count; i++) {
-    row->values[i] = values->values[i];
-  }
+  row->values = malloc(sizeof(TableRow) * table->column_count);
 
   return row;
 }
