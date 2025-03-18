@@ -36,6 +36,7 @@ static const TokenMapEntry keywords[] = {
   {"column", TOKEN_COLUMN},
   {"int", TOKEN_INT},
   {"varchar", TOKEN_VARCHAR},
+  {"unique", TOKEN_UNIQUE},
   {NULL, TOKEN_NONE},
 };
 

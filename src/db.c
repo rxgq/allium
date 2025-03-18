@@ -121,6 +121,13 @@ static AlliumCode execute_create_table(AlliumDb *allium, SqlExpr *expr) {
   Table *table = init_table(table_name);
   
   for (int i = 0; i < create_table->column_count; i++) {
+    ColumnType type = map_column_type(create_table->columns[i].type);
+    if (type == COLUMN_TYPE_UNKNOWN) {
+      set_err(allium, "invalid data type '%s'", create_table->columns[i].type);
+      free_table(table);
+      return ALLIUM_INVALID_COLUMN_DATA_TYPE_ERR;
+    }
+
     TableColumn *table_column = init_table_column(&create_table->columns[i]);
     table->columns[table->column_count++] = *table_column;
   }
@@ -182,19 +189,54 @@ static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
           set_err(allium, "table '%s' not found", table_name);
           return ALLIUM_TABLE_NOT_FOUND_ERR;
         }
-
-        for (int i = 0; i < table->column_count; i++) {
-          printf("| %s ", table->columns[i].name);
+        
+        // collect the default width of the columns
+        int *col_widths = malloc(table->column_count * sizeof(int));
+        for (int j = 0; j < table->column_count; j++) {
+          col_widths[j] = strlen(table->columns[j].name);
         }
-        printf("|\n");
-      
-        int total_width = table->column_count * 3 + 1;
-        for (int i = 0; i < table->column_count; i++) {
-          total_width += strlen(table->columns[i].name);
+        
+        // stretch column width to the largest item in the row
+        for (int i = 0; i < table->row_count; i++) {
+          for (int j = 0; j < table->column_count; j++) {
+            int item_length = strlen((char *)table->rows[i].values[j]);
+            if (item_length > col_widths[j]) {
+              col_widths[j] = item_length;
+            }
+          }
         }
-      
-        for (int i = 0; i < total_width; i++) {
-          printf("-");
+        
+        // output column headers
+        printf("\n\n");
+        printf("| ");
+        for (int j = 0; j < table->column_count; j++) {
+          printf("%-*s | ", col_widths[j], table->columns[j].name);
+        }
+        printf("\n");
+        
+        for (int j = 0; j < table->column_count; j++) {
+          printf("+");
+          for (int k = 0; k < col_widths[j] + 2; k++) {
+            printf("-");
+          }
+        }
+        printf("+\n");
+        
+        // output rows
+        for (int i = 0; i < table->row_count; i++) {
+          printf("| ");
+          for (int j = 0; j < table->column_count; j++) {
+            TableColumn *column = &table->columns[j];
+        
+            if (column->type == COLUMN_TYPE_INT) {
+              printf("%-*d | ", col_widths[j], *(int *)table->rows[i].values[j]);
+            } 
+            else if (column->type == COLUMN_TYPE_STRING) {
+              printf("%-*s | ", col_widths[j], (char *)table->rows[i].values[j]);
+            }
+          }
+        
+          printf("\n");
         }
         printf("\n");
       }
@@ -204,8 +246,39 @@ static AlliumCode execute_select(AlliumDb *allium, SqlExpr *expr) {
   return query_message_success("SELECT");
 }
 
-static AlliumCode execute_insert_into(AlliumDb *db, SqlExpr *expr) {
 
+
+static AlliumCode execute_insert_into(AlliumDb *allium, SqlExpr *expr) {
+  InsertStmt *insert = &expr->as.insert;
+
+  Table *table = get_table(allium->db, insert->table_name->as.identifier.value);
+  if (!table) {
+    set_err(allium, "table '%s' not found", insert->table_name->as.identifier.value);
+    return ALLIUM_TABLE_NOT_FOUND_ERR;
+  }
+
+  // do a count check here on column_count vs table column_count
+  
+  char *bad_column_name = NULL;
+  for (int i = 0; i < insert->column_count; i++) {
+
+    for (int j = 0; j < table->column_count; j++) {
+      if (strcmp(insert->column_names[i]->as.identifier.value, table->columns[j].name) != 0) {
+        bad_column_name = strdup(insert->column_names[i]->as.identifier.value);
+        break;
+      }
+    }
+
+    if (bad_column_name != NULL) {
+      set_err(allium, "column '%s' not found", bad_column_name);
+      return ALLIUM_COLUMN_MISMATCH_ERR;
+    }
+  }
+
+  for (int i = 0; i < insert->row_count; i++) {
+    TableRow *row = init_table_row(insert->rows[i]);
+    table->rows[table->row_count++] = *row;
+  }
 
   return query_message_success("INSERT INTO");
 }
@@ -251,7 +324,6 @@ AlliumCode execute_query(AlliumDb *allium, SqlQueryTree *ast) {
   double time_taken = (double)difference / CLOCKS_PER_SEC;
 
   printf("\nquery completed in %.3fs\n", time_taken);
-
 
   return ALLIUM_SUCCESS;
 }

@@ -58,6 +58,7 @@ char *token_type_to_str(TokenType type) {
     case TOKEN_PLUS: return "+";
     case TOKEN_MINUS: return "-";
     case TOKEN_SLASH: return "/";
+    case TOKEN_UNIQUE: return "unique";
     case TOKEN_EOF: return "eof";
   }
 

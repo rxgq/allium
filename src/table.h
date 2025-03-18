@@ -32,6 +32,8 @@ typedef struct {
 } Table;
 
 extern TableColumn *init_table_column(ColumnExpr *column);
+extern TableRow *init_table_row(InsertValues *values);
 extern Table *init_table(const char *name);
+extern ColumnType map_column_type(const char *type);
 
 #endif

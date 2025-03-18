@@ -15,5 +15,6 @@ typedef struct {
 extern ParserState *parse_ast(int debug, Token* tokens, int token_count);
 extern void free_parser(ParserState *parser);
 extern void parser_out(ParserState *parser);
+extern short get_num_len(int n);
 
 #endif

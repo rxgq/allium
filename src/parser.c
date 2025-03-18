@@ -198,11 +198,11 @@ static inline int is_bad(SqlExpr *expr) {
   return expr->type == BAD_EXPR;
 }
 
-// static short get_num_len(int n) {
-//   if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
-//   if (n < 10) return 1;
-//   return 1 + get_num_len(n / 10);
-// }
+short get_num_len(int n) {
+  if (n < 0) return get_num_len((n == INT_MIN) ? INT_MAX : -n);
+  if (n < 10) return 1;
+  return 1 + get_num_len(n / 10);
+}
 
 static void output_error() {
   int errTokLine = parser->error_token->line;

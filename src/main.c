@@ -52,7 +52,7 @@ void execute_file_query(AlliumDb *allium, char *filename) {
 }
 
 int main() {
-  int debug = 1;
+  int debug = 0;
   AlliumDb *allium = init_allium(debug);
 
   char inp_buff[256];
